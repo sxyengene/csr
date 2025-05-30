@@ -1,0 +1,47 @@
+// 响应式断点配置
+$breakpoints: (
+  'xs': 0,
+  'sm': 576px,
+  'md': 768px,
+  'lg': 992px,
+  'xl': 1200px,
+  'xxl': 1600px
+);
+
+// 媒体查询混入
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (min-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  }
+}
+
+// 响应式容器
+.container {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
+
+  @include respond-to('sm') {
+    max-width: 540px;
+  }
+
+  @include respond-to('md') {
+    max-width: 720px;
+  }
+
+  @include respond-to('lg') {
+    max-width: 960px;
+  }
+
+  @include respond-to('xl') {
+    max-width: 1140px;
+  }
+
+  @include respond-to('xxl') {
+    max-width: 1320px;
+  }
+} 

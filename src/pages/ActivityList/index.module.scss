@@ -1,0 +1,118 @@
+.container {
+  padding: 24px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h1 {
+      margin: 0;
+    }
+  }
+
+  .activityList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    grid-auto-rows: max-content;
+  }
+
+  .activityCard {
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    break-inside: avoid;
+    height: fit-content;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .bgImage {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-radius: 8px 8px 0 0;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3));
+      }
+    }
+
+    .content {
+      padding: 16px;
+      flex: 1;
+
+      .info {
+        margin-bottom: 16px;
+
+        h2 {
+          margin: 0 0 8px;
+          font-size: 18px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.85);
+        }
+
+        p {
+          margin: 0;
+          color: rgba(0, 0, 0, 0.45);
+        }
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+
+        button {
+          min-width: 100px;
+        }
+      }
+    }
+
+    .timeline {
+      margin-top: 16px;
+      padding: 16px;
+      border-top: 1px solid #f0f0f0;
+      background: #fafafa;
+    }
+  }
+}
+
+// 响应式调整
+@media screen and (max-width: 768px) {
+  .container {
+    padding: 16px;
+
+    .activityList {
+      grid-template-columns: 1fr;
+    }
+
+    .activityCard {
+      .content {
+        .actions {
+          flex-direction: column;
+          
+          button {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+} 

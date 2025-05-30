@@ -1,0 +1,102 @@
+@import './breakpoints.scss';
+
+// 重置默认样式
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+// 栅格系统辅助类
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -0.5rem;
+  margin-left: -0.5rem;
+}
+
+// 生成栅格列类
+@for $i from 1 through 24 {
+  .col-#{$i} {
+    flex: 0 0 percentage($i / 24);
+    max-width: percentage($i / 24);
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+
+  @each $breakpoint, $value in $breakpoints {
+    @include respond-to($breakpoint) {
+      .col-#{$breakpoint}-#{$i} {
+        flex: 0 0 percentage($i / 24);
+        max-width: percentage($i / 24);
+        padding-right: 0.5rem;
+        padding-left: 0.5rem;
+      }
+    }
+  }
+}
+
+// 响应式工具类
+.hidden {
+  display: none !important;
+}
+
+@each $breakpoint, $value in $breakpoints {
+  @include respond-to($breakpoint) {
+    .hidden-#{$breakpoint}-up {
+      display: none !important;
+    }
+  }
+
+  @media (max-width: #{$value - 1px}) {
+    .hidden-#{$breakpoint}-down {
+      display: none !important;
+    }
+  }
+}
+
+// 常用间距类
+$spacer: 1rem;
+$spacers: (
+  0: 0,
+  1: $spacer * 0.25,
+  2: $spacer * 0.5,
+  3: $spacer,
+  4: $spacer * 1.5,
+  5: $spacer * 3
+);
+
+@each $key, $value in $spacers {
+  .m-#{$key} { margin: $value !important; }
+  .mt-#{$key} { margin-top: $value !important; }
+  .mr-#{$key} { margin-right: $value !important; }
+  .mb-#{$key} { margin-bottom: $value !important; }
+  .ml-#{$key} { margin-left: $value !important; }
+  .mx-#{$key} {
+    margin-left: $value !important;
+    margin-right: $value !important;
+  }
+  .my-#{$key} {
+    margin-top: $value !important;
+    margin-bottom: $value !important;
+  }
+
+  .p-#{$key} { padding: $value !important; }
+  .pt-#{$key} { padding-top: $value !important; }
+  .pr-#{$key} { padding-right: $value !important; }
+  .pb-#{$key} { padding-bottom: $value !important; }
+  .pl-#{$key} { padding-left: $value !important; }
+  .px-#{$key} {
+    padding-left: $value !important;
+    padding-right: $value !important;
+  }
+  .py-#{$key} {
+    padding-top: $value !important;
+    padding-bottom: $value !important;
+  }
+} 
