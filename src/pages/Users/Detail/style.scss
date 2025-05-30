@@ -1,0 +1,26 @@
+.user-detail-container {
+  padding: 24px;
+
+  .ant-descriptions {
+    margin-bottom: 24px;
+  }
+
+  .detail-tabs {
+    margin-top: 24px;
+
+    .ant-table {
+      margin-top: 16px;
+    }
+  }
+
+  .ant-tag {
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .ant-card-extra {
+    .ant-space {
+      gap: 8px;
+    }
+  }
+} 

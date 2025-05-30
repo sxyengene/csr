@@ -1,17 +1,26 @@
 import React, { useEffect } from "react";
-import { Form, Input, DatePicker, Button, Card, message } from "antd";
+import { Form, Input, DatePicker, Button, Card, message, Select } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import styles from "./index.module.scss";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
+const { Option } = Select;
 
 const EventCreate = () => {
   const navigate = useNavigate();
   const { activityId, eventId } = useParams();
   const [form] = Form.useForm();
   const isEdit = !!eventId;
+
+  // 事件状态选项
+  const eventStatusOptions = [
+    { value: "not_registered", label: "未报名" },
+    { value: "registering", label: "报名中" },
+    { value: "full", label: "已满人" },
+    { value: "ended", label: "已结束" },
+  ];
 
   useEffect(() => {
     if (isEdit) {
@@ -21,6 +30,7 @@ const EventCreate = () => {
         name: "模拟事件",
         timeRange: [dayjs("2024-03-20 09:00"), dayjs("2024-03-20 10:00")],
         description: "这是一个模拟事件的描述",
+        status: "registering", // 添加状态字段
       };
       form.setFieldsValue(mockEventData);
     }
@@ -74,6 +84,21 @@ const EventCreate = () => {
             rules={[{ required: true, message: "请输入事件名称" }]}
           >
             <Input placeholder="请输入事件名称" maxLength={45} />
+          </Form.Item>
+
+          <Form.Item
+            name="status"
+            label="事件状态"
+            rules={[{ required: true, message: "请选择事件状态" }]}
+            initialValue="not_registered"
+          >
+            <Select placeholder="请选择事件状态">
+              {eventStatusOptions.map((option) => (
+                <Option key={option.value} value={option.value}>
+                  {option.label}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item

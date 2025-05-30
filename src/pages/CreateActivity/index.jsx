@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Form, Input, InputNumber, Button, Card, message } from "antd";
+import { Form, Input, InputNumber, Button, Card, message, Radio } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
 const { TextArea } = Input;
@@ -19,6 +19,7 @@ const CreateActivity = () => {
         total_time: 120,
         icon: "mock-icon-path",
         description: "这是一个模拟的活动描述",
+        is_display: true, // 添加前台展示字段
       };
       form.setFieldsValue(mockActivityData);
     }
@@ -56,6 +57,18 @@ const CreateActivity = () => {
           ]}
         >
           <Input placeholder="请输入活动名称" />
+        </Form.Item>
+
+        <Form.Item
+          label="前台展示"
+          name="is_display"
+          rules={[{ required: true, message: "请选择是否在前台展示" }]}
+          initialValue={true}
+        >
+          <Radio.Group>
+            <Radio value={true}>显示</Radio>
+            <Radio value={false}>隐藏</Radio>
+          </Radio.Group>
         </Form.Item>
 
         <Form.Item

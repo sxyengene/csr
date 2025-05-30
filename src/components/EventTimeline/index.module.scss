@@ -18,22 +18,45 @@
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-    .editIcon {
-      opacity: 1;
-      transform: translateY(-50%) scale(1);
+    .eventHeader h3 {
+      color: #1890ff;
     }
 
-    h3 {
+    &::after {
+      content: '点击编辑事件';
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      transform: translateY(-50%);
+      font-size: 12px;
       color: #1890ff;
+      background: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      opacity: 0.9;
+      pointer-events: none;
     }
   }
 
-  h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.85);
-    transition: color 0.2s ease;
+  .eventHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 8px;
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.85);
+      transition: color 0.2s ease;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .time {
@@ -72,30 +95,31 @@
     &.expanded {
       max-height: none;
     }
-  }
 
-  .editIcon {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%) scale(0.8);
-    opacity: 0;
-    transition: all 0.2s ease;
-    color: #1890ff;
-    font-size: 18px;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-    border-radius: 50%;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    
     &:hover {
-      color: #40a9ff;
-      transform: translateY(-50%) scale(1.1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      background-color: rgba(0, 0, 0, 0.02);
+      border-radius: 4px;
+    }
+  }
+}
+
+// 响应式调整
+@media screen and (max-width: 768px) {
+  .eventItem {
+    .eventHeader {
+      flex-direction: column;
+      align-items: flex-start;
+
+      h3 {
+        white-space: normal;
+        margin-bottom: 4px;
+      }
+    }
+
+    &:hover {
+      &::after {
+        display: none;
+      }
     }
   }
 } 
