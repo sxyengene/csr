@@ -1,14 +1,37 @@
 import React, { useEffect } from "react";
-import { Form, Input, InputNumber, Button, Card, message, Radio } from "antd";
+import {
+  Form,
+  Input,
+  InputNumber,
+  Button,
+  Card,
+  message,
+  Radio,
+  Select,
+  Checkbox,
+} from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 
 const { TextArea } = Input;
+const { Option } = Select;
 
 const EventCreate = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
+
+  // 地区选项
+  const locationOptions = [
+    { value: "上海", label: "上海" },
+    { value: "深圳", label: "深圳" },
+  ];
+
+  // 角色选项
+  const roleOptions = [
+    { value: "admin", label: "管理员" },
+    { value: "user", label: "普通用户" },
+  ];
 
   useEffect(() => {
     if (isEdit) {
@@ -19,7 +42,9 @@ const EventCreate = () => {
         total_time: 120,
         icon: "mock-icon-path",
         description: "这是一个模拟的事件描述",
-        is_display: true, // 添加前台展示字段
+        is_display: true,
+        visibleLocations: ["上海", "深圳"], // 可见地区
+        visibleRoles: ["admin", "user"], // 可见角色
       };
       form.setFieldsValue(mockEventData);
     }
@@ -47,6 +72,11 @@ const EventCreate = () => {
         layout="vertical"
         onFinish={onFinish}
         autoComplete="off"
+        initialValues={{
+          is_display: true,
+          visibleLocations: ["上海", "深圳"], // 默认全部地区可见
+          visibleRoles: ["admin", "user"], // 默认全部角色可见
+        }}
       >
         <Form.Item
           label="事件名称"
@@ -63,7 +93,6 @@ const EventCreate = () => {
           label="前台展示"
           name="is_display"
           rules={[{ required: true, message: "请选择是否在前台展示" }]}
-          initialValue={true}
         >
           <Radio.Group>
             <Radio value={true}>显示</Radio>
@@ -111,6 +140,34 @@ const EventCreate = () => {
             showCount
             maxLength={1000}
           />
+        </Form.Item>
+
+        <Form.Item
+          name="visibleLocations"
+          label="可见地区"
+          rules={[{ required: true, message: "请选择可见地区" }]}
+        >
+          <Select mode="multiple" placeholder="请选择可见地区" allowClear>
+            {locationOptions.map((option) => (
+              <Option key={option.value} value={option.value}>
+                {option.label}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          name="visibleRoles"
+          label="可见角色"
+          rules={[{ required: true, message: "请选择可见角色" }]}
+        >
+          <Checkbox.Group>
+            {roleOptions.map((option) => (
+              <Checkbox key={option.value} value={option.value}>
+                {option.label}
+              </Checkbox>
+            ))}
+          </Checkbox.Group>
         </Form.Item>
 
         <Form.Item>
