@@ -12,14 +12,14 @@
     }
   }
 
-  .activityList {
+  .eventList {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 24px;
     grid-auto-rows: max-content;
   }
 
-  .activityCard {
+  .eventCard {
     cursor: pointer;
     transition: all 0.3s;
     display: flex;
@@ -124,11 +124,11 @@
   .container {
     padding: 16px;
 
-    .activityList {
+    .eventList {
       grid-template-columns: 1fr;
     }
 
-    .activityCard {
+    .eventCard {
       .content {
         .info {
           .titleRow {

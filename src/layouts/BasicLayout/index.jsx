@@ -14,7 +14,7 @@ const BasicLayout = () => {
     {
       key: "/",
       icon: <CalendarOutlined />,
-      label: "活动管理",
+      label: "事件管理",
     },
     {
       key: "/users",

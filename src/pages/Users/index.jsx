@@ -1,15 +1,31 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Table, Card, Input, Button, Space, message, Modal, Tag } from "antd";
+import {
+  Table,
+  Card,
+  Input,
+  Button,
+  Space,
+  message,
+  Modal,
+  Tag,
+  Select,
+} from "antd";
 import {
   SearchOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
+  EditOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { getUserList, deleteUsers } from "../../services/user";
+import {
+  getUserList,
+  deleteUsers,
+  updateUserReviewer,
+} from "../../services/user";
 import "./style.scss";
 
 const { confirm } = Modal;
+const { Option } = Select;
 
 const UserList = () => {
   const navigate = useNavigate();
@@ -25,6 +41,16 @@ const UserList = () => {
     username: "",
     role: "",
   });
+  const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [selectedReviewer, setSelectedReviewer] = useState("");
+
+  // reviewer选项
+  const reviewerOptions = [
+    { value: "孙雄鹰", label: "孙雄鹰" },
+    { value: "张如诚", label: "张如诚" },
+    { value: "xu jin", label: "xu jin" },
+  ];
 
   // 获取用户列表数据
   const fetchData = useCallback(
@@ -63,18 +89,37 @@ const UserList = () => {
     [navigate]
   );
 
+  // 处理设置reviewer
+  const handleSetReviewer = useCallback((user) => {
+    setCurrentUser(user);
+    setSelectedReviewer(user.reviewer || "");
+    setReviewerModalVisible(true);
+  }, []);
+
+  // 保存reviewer设置
+  const handleSaveReviewer = async () => {
+    try {
+      await updateUserReviewer(currentUser.id, selectedReviewer);
+      message.success("设置成功");
+      setReviewerModalVisible(false);
+      fetchData();
+    } catch (error) {
+      message.error("设置失败");
+    }
+  };
+
   // 表格列配置
   const columns = [
     {
       title: "用户名称",
       dataIndex: "username",
       sorter: true,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "用户角色",
       dataIndex: "role",
-      width: "15%",
+      width: "12%",
       render: (role) => (
         <Tag color={role === "admin" ? "red" : "blue"}>
           {role === "admin" ? "管理员" : "普通用户"}
@@ -82,26 +127,53 @@ const UserList = () => {
       ),
     },
     {
+      title: "所在地区",
+      dataIndex: "location",
+      width: "10%",
+    },
+    {
+      title: "Reviewer",
+      dataIndex: "reviewer",
+      width: "15%",
+      render: (reviewer, record) => (
+        <Space>
+          <span>{reviewer || "未设置"}</span>
+          <Button
+            type="link"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSetReviewer(record);
+            }}
+          >
+            设置
+          </Button>
+        </Space>
+      ),
+    },
+    {
       title: "创建时间",
       dataIndex: "createTime",
       sorter: true,
-      width: "20%",
+      width: "15%",
     },
     {
       title: "参与事件数量",
       dataIndex: "eventCount",
       sorter: true,
-      width: "15%",
+      width: "10%",
     },
     {
       title: "参与活动数量",
       dataIndex: "activityCount",
       sorter: true,
-      width: "15%",
+      width: "10%",
     },
     {
       title: "操作",
       key: "action",
+      width: "13%",
       render: (_, record) => (
         <Space size="middle">
           <Button type="link" onClick={() => handleUserDetail(record.id)}>
@@ -208,6 +280,37 @@ const UserList = () => {
           })}
         />
       </Card>
+
+      {/* 设置Reviewer弹窗 */}
+      <Modal
+        title="设置Reviewer"
+        open={reviewerModalVisible}
+        onOk={handleSaveReviewer}
+        onCancel={() => setReviewerModalVisible(false)}
+        destroyOnClose
+      >
+        <div style={{ marginBottom: 16 }}>
+          <strong>用户：</strong>
+          {currentUser?.username}
+        </div>
+        <Select
+          placeholder="请选择Reviewer"
+          value={selectedReviewer}
+          onChange={setSelectedReviewer}
+          style={{ width: "100%" }}
+          showSearch
+          filterOption={(input, option) =>
+            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          }
+        >
+          <Option value="">无</Option>
+          {reviewerOptions.map((option) => (
+            <Option key={option.value} value={option.value}>
+              {option.label}
+            </Option>
+          ))}
+        </Select>
+      </Modal>
     </div>
   );
 };

@@ -5,9 +5,9 @@ import {
   Navigate,
 } from "react-router-dom";
 import BasicLayout from "./layouts/BasicLayout";
-import CreateActivity from "./pages/CreateActivity";
-import ActivityList from "./pages/ActivityList";
 import EventCreate from "./pages/EventCreate";
+import EventList from "./pages/EventList";
+import ActivityCreate from "./pages/ActivityCreate";
 import Login from "./pages/Login";
 import UserList from "./pages/Users";
 import UserDetail from "./pages/Users/Detail";
@@ -35,13 +35,13 @@ function App() {
             </PrivateRoute>
           }
         >
-          <Route index element={<ActivityList />} />
-          <Route path="activities/create" element={<CreateActivity />} />
-          <Route path="activities/:id/edit" element={<CreateActivity />} />
-          <Route path="event/create/:activityId" element={<EventCreate />} />
+          <Route index element={<EventList />} />
+          <Route path="events/create" element={<EventCreate />} />
+          <Route path="events/:id/edit" element={<EventCreate />} />
+          <Route path="activity/create/:eventId" element={<ActivityCreate />} />
           <Route
-            path="event/edit/:activityId/:eventId"
-            element={<EventCreate />}
+            path="activity/edit/:eventId/:activityId"
+            element={<ActivityCreate />}
           />
           <Route path="users" element={<UserList />} />
           <Route path="users/:id" element={<UserDetail />} />

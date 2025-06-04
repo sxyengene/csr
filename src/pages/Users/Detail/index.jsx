@@ -18,8 +18,8 @@ import {
   getUserDetail,
   updateUser,
   resetUserPassword,
-  getUserActivities,
   getUserEvents,
+  getUserActivities,
 } from "../../../services/user";
 import "./style.scss";
 
@@ -33,8 +33,8 @@ const UserDetail = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [resetModalVisible, setResetModalVisible] = useState(false);
-  const [activities, setActivities] = useState([]);
   const [events, setEvents] = useState([]);
+  const [activities, setActivities] = useState([]);
   const [form] = Form.useForm();
   const [resetForm] = Form.useForm();
 
@@ -51,31 +51,31 @@ const UserDetail = () => {
     }
   }, [id]);
 
-  // 获取用户活动历史
-  const fetchUserActivities = useCallback(async () => {
-    try {
-      const data = await getUserActivities(id);
-      setActivities(data);
-    } catch (error) {
-      message.error("获取活动历史失败");
-    }
-  }, [id]);
-
-  // 获取用户事件列表
+  // 获取用户事件记录
   const fetchUserEvents = useCallback(async () => {
     try {
       const data = await getUserEvents(id);
       setEvents(data);
     } catch (error) {
-      message.error("获取事件列表失败");
+      message.error("获取事件记录失败");
+    }
+  }, [id]);
+
+  // 获取用户活动记录
+  const fetchUserActivities = useCallback(async () => {
+    try {
+      const data = await getUserActivities(id);
+      setActivities(data);
+    } catch (error) {
+      message.error("获取活动记录失败");
     }
   }, [id]);
 
   useEffect(() => {
     fetchUserDetail();
-    fetchUserActivities();
     fetchUserEvents();
-  }, [fetchUserDetail, fetchUserActivities, fetchUserEvents]);
+    fetchUserActivities();
+  }, [fetchUserDetail, fetchUserEvents, fetchUserActivities]);
 
   // 处理用户信息更新
   const handleUpdate = async (values) => {
@@ -104,27 +104,35 @@ const UserDetail = () => {
   // 处理事件详情跳转
   const handleEventDetail = useCallback(
     (eventId) => {
-      navigate(`/event/${eventId}`);
+      navigate(`/events/${eventId}`);
     },
     [navigate]
   );
 
-  // 活动历史表格列配置
-  const activityColumns = [
+  // 处理活动详情跳转
+  const handleActivityDetail = useCallback(
+    (activityId) => {
+      navigate(`/activities/${activityId}`);
+    },
+    [navigate]
+  );
+
+  // 事件记录表格列配置
+  const eventColumns = [
     {
-      title: "活动名称",
+      title: "事件名称",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "活动类型",
+      title: "事件类型",
       dataIndex: "type",
       key: "type",
     },
     {
-      title: "参与时间",
-      dataIndex: "joinTime",
-      key: "joinTime",
+      title: "参与时长",
+      dataIndex: "duration",
+      key: "duration",
     },
     {
       title: "状态",
@@ -138,22 +146,22 @@ const UserDetail = () => {
     },
   ];
 
-  // 事件列表表格列配置
-  const eventColumns = [
+  // 活动记录表格列配置
+  const activityColumns = [
     {
-      title: "事件名称",
+      title: "活动名称",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "所属活动",
-      dataIndex: "activityName",
-      key: "activityName",
+      title: "所属事件",
+      dataIndex: "eventName",
+      key: "eventName",
     },
     {
-      title: "事件时间",
-      dataIndex: "eventTime",
-      key: "eventTime",
+      title: "参与时长",
+      dataIndex: "duration",
+      key: "duration",
     },
     {
       title: "操作",
@@ -163,7 +171,7 @@ const UserDetail = () => {
           type="link"
           onClick={(e) => {
             e.stopPropagation();
-            handleEventDetail(record.id);
+            handleActivityDetail(record.id);
           }}
         >
           查看详情
@@ -202,30 +210,33 @@ const UserDetail = () => {
               {userInfo?.role === "admin" ? "管理员" : "普通用户"}
             </Tag>
           </Descriptions.Item>
+          <Descriptions.Item label="所在地区">
+            {userInfo?.location}
+          </Descriptions.Item>
           <Descriptions.Item label="创建时间">
             {userInfo?.createTime}
-          </Descriptions.Item>
-          <Descriptions.Item label="参与活动数">
-            {userInfo?.activityCount}
           </Descriptions.Item>
           <Descriptions.Item label="参与事件数">
             {userInfo?.eventCount}
           </Descriptions.Item>
+          <Descriptions.Item label="参与活动数">
+            {userInfo?.activityCount}
+          </Descriptions.Item>
         </Descriptions>
 
-        <Tabs defaultActiveKey="activities" className="detail-tabs">
-          <TabPane tab="活动历史" key="activities">
+        <Tabs defaultActiveKey="events" className="detail-tabs">
+          <TabPane tab="事件记录" key="events">
             <Table
-              columns={activityColumns}
-              dataSource={activities}
+              columns={eventColumns}
+              dataSource={events}
               rowKey="id"
               pagination={false}
             />
           </TabPane>
-          <TabPane tab="事件列表" key="events">
+          <TabPane tab="活动记录" key="activities">
             <Table
-              columns={eventColumns}
-              dataSource={events}
+              columns={activityColumns}
+              dataSource={activities}
               rowKey="id"
               pagination={false}
             />
@@ -257,6 +268,17 @@ const UserDetail = () => {
             <Select>
               <Option value="admin">管理员</Option>
               <Option value="user">普通用户</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            name="location"
+            label="所在地区"
+            rules={[{ required: true, message: "请选择所在地区" }]}
+            initialValue="上海"
+          >
+            <Select>
+              <Option value="上海">上海</Option>
+              <Option value="深圳">深圳</Option>
             </Select>
           </Form.Item>
         </Form>
