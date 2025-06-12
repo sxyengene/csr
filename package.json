@@ -21,7 +21,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "docs:generate": "node scripts/generate-docs.js",
+    "docs:dev": "node scripts/generate-docs.js && echo '📖 文档已更新，请在Cursor中使用 @deepwiki 命令查看'"
   },
   "eslintConfig": {
     "extends": [

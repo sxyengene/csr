@@ -1,0 +1,25 @@
+{
+  "name": "CSR-Admin API文档",
+  "description": "CSR-Admin管理后台系统的完整API接口文档",
+  "version": "1.0.0",
+  "docs": {
+    "input": ["API_DOCS.md", "src/**/*.js", "src/**/*.jsx"],
+    "output": "docs",
+    "autoUpdate": true,
+    "generateWeb": true
+  },
+  "api": {
+    "baseUrl": "/api",
+    "format": "openapi",
+    "autoExtract": true
+  },
+  "team": {
+    "maintainers": ["CSR开发团队"],
+    "reviewers": ["孙雄鹰", "张如诚", "xu jin"]
+  },
+  "publish": {
+    "enabled": true,
+    "public": false,
+    "domain": "csr-admin-docs"
+  }
+}
