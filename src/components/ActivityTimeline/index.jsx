@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Timeline, Empty, Tag } from "antd";
 import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
 import styles from "./index.module.scss";
 
 const ActivityTimeline = ({ activities, eventId }) => {
@@ -62,9 +63,9 @@ const ActivityTimeline = ({ activities, eventId }) => {
             </p>
             {activity.description && (
               <div
-                className={`${styles.description} ${
-                  expandedActivities.has(activity.id) ? styles.expanded : ""
-                }`}
+                className={clsx(styles.description, {
+                  [styles.expanded]: expandedActivities.has(activity.id),
+                })}
                 onClick={(e) => toggleDescription(activity.id, e)}
               >
                 <p>{activity.description}</p>
