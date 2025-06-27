@@ -30,6 +30,7 @@ export const login = async (username, password) => {
 
     // 存储token信息到localStorage
     localStorage.setItem(TOKEN_CONFIG.ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem("token", accessToken); // 保持向后兼容性
     localStorage.setItem(TOKEN_CONFIG.REFRESH_TOKEN_KEY, refreshToken);
     localStorage.setItem(TOKEN_CONFIG.TOKEN_TYPE_KEY, tokenType);
     localStorage.setItem(TOKEN_CONFIG.EXPIRES_IN_KEY, expiresIn.toString());
@@ -67,8 +68,33 @@ export const login = async (username, password) => {
   }
 };
 
-// 退出登录
-export const logout = () => {
+// 退出登录 (调用后端API使refresh token失效)
+export const logout = async () => {
+  const refreshTokenValue = localStorage.getItem(
+    TOKEN_CONFIG.REFRESH_TOKEN_KEY
+  );
+  const accessToken = getToken();
+
+  // 如果有refresh token，尝试调用后端API使其失效
+  if (refreshTokenValue && accessToken) {
+    try {
+      await authAxios.post(
+        API_ENDPOINTS.AUTH.LOGOUT,
+        {
+          refreshToken: refreshTokenValue,
+        },
+        {
+          headers: {
+            Authorization: `${TOKEN_CONFIG.TOKEN_PREFIX} ${accessToken}`,
+          },
+        }
+      );
+    } catch (error) {
+      // 即使后端调用失败也要清除本地存储
+      console.warn("登出API调用失败，但会继续清除本地存储:", error.message);
+    }
+  }
+
   // 清除所有token相关信息
   localStorage.removeItem("token"); // 保持兼容性
   localStorage.removeItem(TOKEN_CONFIG.ACCESS_TOKEN_KEY);
@@ -94,6 +120,35 @@ export const isTokenExpired = () => {
   const expiresAt = localStorage.getItem(TOKEN_CONFIG.EXPIRES_AT_KEY);
   if (!expiresAt) return true;
   return Date.now() > parseInt(expiresAt);
+};
+
+// 获取当前用户信息
+export const getCurrentUser = () => {
+  const token = getToken();
+  if (!token) return null;
+
+  try {
+    // 简单解析JWT token获取用户信息 (仅获取username)
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return {
+      id: 1, // 临时ID
+      username: payload.sub || "unknown",
+      name: payload.sub || "unknown",
+    };
+  } catch (error) {
+    console.warn("无法解析token获取用户信息:", error);
+    return {
+      id: 1,
+      username: "unknown",
+      name: "用户",
+    };
+  }
+};
+
+// 检查是否已登录
+export const isAuthenticated = () => {
+  const token = getToken();
+  return token && !isTokenExpired();
 };
 
 // 刷新token的函数 (底层服务，使用独立的axios实例)
@@ -128,7 +183,7 @@ export const refreshToken = async () => {
     return accessToken;
   } catch (error) {
     // 刷新失败，清除所有token并跳转登录
-    logout();
+    logout().catch(console.warn);
 
     // 处理 axios 错误
     if (error.response) {

@@ -30,11 +30,16 @@ CSR-Admin 是一个基于 React + Ant Design 的企业级管理后台系统，�
 
 ## 🔐 认证模块
 
-### 1. 用户登录
+### 1. 用户登录 ✅ 已接入
 
 **POST** `/api/auth/login`
 
 用户登录获取访问令牌。
+
+**测试账号:**
+
+- 用户名: `john_doe`，密码: `password123`
+- 用户名: `admin`，密码: `admin123`
 
 **请求参数:**
 
@@ -50,14 +55,12 @@ CSR-Admin 是一个基于 React + Ant Design 的企业级管理后台系统，�
 ```json
 {
   "code": 200,
-  "message": "登录成功",
+  "message": "Success",
   "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "user": {
-      "id": 1,
-      "username": "admin",
-      "name": "管理员"
-    }
+    "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Imphc29uIiwiaWF0IjoxNzUxMDA3NDk4LCJleHAiOjE3NTEwMTEwOTh9.6loWPoU1ISStwSZ09nqia5iUJSdxhbCwLqTEMbD4TKI",
+    "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoicmVmcmVzaCIsInN1YiI6Imphc29uIiwiaWF0IjoxNzUxMDA3NDk4LCJleHAiOjE3NTEwOTM4OTh9.qCh3NtkdNUFi4OP_tkgVnj6PIAqlBxwsMFDuzhASupA",
+    "tokenType": "Bearer",
+    "expiresIn": 300
   }
 }
 ```
@@ -71,16 +74,24 @@ CSR-Admin 是一个基于 React + Ant Design 的企业级管理后台系统，�
 }
 ```
 
-### 2. 退出登录
+### 2. 退出登录 ✅ 已接入
 
 **POST** `/api/auth/logout`
 
-用户退出登录，使当前 token 失效。
+用户退出登录，使当前 refresh token 失效。
 
 **请求头:**
 
 ```
-Authorization: Bearer {token}
+Authorization: Bearer {accessToken}
+```
+
+**请求参数:**
+
+```json
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoicmVmcmVzaCIsInN1YiI6Imphc29uIiwiaWF0IjoxNzUxMDA3NDk4LCJleHAiOjE3NTEwOTM4OTh9.qCh3NtkdNUFi4OP_tkgVnj6PIAqlBxwsMFDuzhASupA"
+}
 ```
 
 **响应示例:**
@@ -88,7 +99,8 @@ Authorization: Bearer {token}
 ```json
 {
   "code": 200,
-  "message": "退出成功"
+  "message": "Logged out successfully",
+  "data": null
 }
 ```
 

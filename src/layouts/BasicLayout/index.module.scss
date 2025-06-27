@@ -7,14 +7,44 @@
   padding: 0 24px;
   display: flex;
   align-items: center;
+  justify-content: space-between; // 左右分布
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   position: relative;
   z-index: 10;
 
   .logo {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     color: #1890ff;
+  }
+
+  .userInfo {
+    display: flex;
+    align-items: center;
+
+    .userButton {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      color: #595959;
+      transition: all 0.3s;
+
+      &:hover {
+        background-color: #f5f5f5;
+        color: #1890ff;
+      }
+
+      .username {
+        font-size: 14px;
+        font-weight: 500;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
   }
 }
 
@@ -23,9 +53,109 @@
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
   position: relative;
   z-index: 9;
+
+  .siderContent {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    
+    .mainMenu {
+      flex: 1;
+      border-right: none;
+    }
+
+    .bottomActions {
+      padding: 16px;
+      border-top: 1px solid #f0f0f0;
+      margin-top: auto;
+
+      .logoutButton {
+        height: 40px;
+        color: #ff4d4f;
+        border-radius: 6px;
+        transition: all 0.3s;
+        
+        &:hover {
+          background-color: #fff2f0;
+          border-color: #ff7875;
+          color: #ff4d4f;
+        }
+
+        &:focus {
+          background-color: #fff2f0;
+          border-color: #ff7875;
+          color: #ff4d4f;
+        }
+
+        // 加载状态时的样式
+        &.ant-btn-loading {
+          color: #ff4d4f;
+        }
+      }
+    }
+  }
 }
 
 .content {
   background: #f0f2f5;
   min-height: calc(100vh - 64px);
-} 
+} /* Force refresh at Fri Jun 27 15:42:42 CST 2025 */
+
+// 移动端响应式样式
+@media (max-width: 768px) {
+  .userInfo {
+    .userButton {
+      padding: 2px 8px;
+      
+      .username {
+        max-width: 80px;
+        font-size: 12px;
+      }
+    }
+  }
+  
+  .logo {
+    font-size: 16px;
+  }
+}
+
+// PC端折叠触发按钮样式
+.trigger {
+  padding: 0 24px;
+  font-size: 18px;
+  line-height: 64px;
+  cursor: pointer;
+  transition: color 0.3s;
+
+  &:hover {
+    color: #1890ff;
+  }
+}
+
+// 侧边栏登出按钮样式
+.siderLogoutButton {
+  width: 100%;
+  color: #ff4d4f !important;
+  border-color: #ff4d4f;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  transition: all 0.3s;
+  
+  &:hover {
+    background-color: rgba(255, 77, 79, 0.1) !important;
+    border-color: #ff7875 !important;
+    color: #ff4d4f !important;
+  }
+
+  &:focus {
+    background-color: rgba(255, 77, 79, 0.1) !important;
+    border-color: #ff7875 !important;
+    color: #ff4d4f !important;
+  }
+
+  // 折叠状态下居中显示
+  &.collapsed {
+    justify-content: center;
+  }
+}

@@ -1,4 +1,9 @@
 /**
+ * URL 参数替换工具 - 使用 lodash 模板引擎优化
+ */
+import { template } from "lodash";
+
+/**
  * API 基础配置和标准化处理
  */
 
@@ -189,11 +194,6 @@ export const API_ENDPOINTS = {
     DELETE: "/api/activities/{id}",
   },
 };
-
-/**
- * URL 参数替换工具 - 使用 lodash 模板引擎优化
- */
-import { template } from "lodash";
 
 export const buildUrl = (endpoint, params = {}) => {
   // 使用 lodash 模板引擎，更强大且安全

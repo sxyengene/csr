@@ -4,19 +4,19 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import BasicLayout from "./layouts/BasicLayout";
+import BasicLayout from "./layouts/BasicLayout/index";
 import EventCreate from "./pages/EventCreate";
 import EventList from "./pages/EventList";
 import ActivityCreate from "./pages/ActivityCreate";
 import Login from "./pages/Login";
 import UserList from "./pages/Users";
 import UserDetail from "./pages/Users/Detail";
+import { isAuthenticated } from "./services/auth";
 import "./styles/global.scss";
 
 // 路由守卫组件
 const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
+  if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
   return children;

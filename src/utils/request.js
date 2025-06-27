@@ -47,7 +47,7 @@ axiosInstance.interceptors.request.use(
           config.headers.Authorization = `${TOKEN_CONFIG.TOKEN_PREFIX} ${newToken}`;
         } catch (error) {
           // 刷新失败，跳转登录
-          logout();
+          logout().catch(console.warn);
           return Promise.reject(
             createErrorResponse(
               RESPONSE_CODES.UNAUTHORIZED,
@@ -85,7 +85,7 @@ axiosInstance.interceptors.response.use(
 
       // 检查是否需要重新登录
       if (shouldReLogin(apiResponse.code)) {
-        logout();
+        logout().catch(console.warn);
         return Promise.reject(
           createErrorResponse(apiResponse.code, "登录已过期，请重新登录")
         );
@@ -107,7 +107,7 @@ axiosInstance.interceptors.response.use(
 
       // 401 未认证错误，自动处理登录
       if (shouldReLogin(status)) {
-        logout();
+        logout().catch(console.warn);
         return Promise.reject(
           createErrorResponse(status, "登录已过期，请重新登录")
         );
