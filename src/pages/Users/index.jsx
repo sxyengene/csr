@@ -69,7 +69,14 @@ const UserList = () => {
           total: response.total,
         });
       } catch (error) {
-        message.error("获取用户列表失败");
+        // 根据错误类型显示不同的提示
+        if (error.code === 403) {
+          message.warning("权限不足：需要管理员权限才能查看用户列表");
+        } else if (error.code === 401) {
+          message.error("登录已过期，请重新登录");
+        } else {
+          message.error(`获取用户列表失败: ${error.message || "未知错误"}`);
+        }
       } finally {
         setLoading(false);
       }

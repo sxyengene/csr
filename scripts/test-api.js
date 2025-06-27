@@ -1,4 +1,5 @@
 const fetch = require("node-fetch");
+const axios = require("axios");
 
 // API配置
 const API_BASE_URL = "http://8.133.240.77:8080";
@@ -121,6 +122,131 @@ async function testTokenValidation(token) {
   }
 }
 
+// 测试登录功能
+async function testLogin() {
+  console.log("🔐 测试登录功能...");
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+      username: "john_doe",
+      password: "password123",
+    });
+
+    if (response.data.code === 200) {
+      console.log("✅ 登录测试成功");
+      console.log(
+        `   Token: ${response.data.data.accessToken.slice(0, 20)}...`
+      );
+      return response.data.data.accessToken;
+    } else {
+      console.log("❌ 登录测试失败:", response.data.message);
+      return null;
+    }
+  } catch (error) {
+    console.log("❌ 登录测试出错:", error.message);
+    return null;
+  }
+}
+
+// 测试用户列表功能
+async function testUserList(token) {
+  console.log("\n👥 测试用户列表功能...");
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/users`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        page: 1,
+        pageSize: 5,
+      },
+    });
+
+    if (response.data.code === 200) {
+      console.log("✅ 用户列表测试成功");
+      console.log(`   总用户数: ${response.data.data.total}`);
+      console.log(`   当前页: ${response.data.data.page}`);
+      console.log(`   页大小: ${response.data.data.pageSize}`);
+      console.log(`   用户列表:`);
+
+      response.data.data.data.forEach((user, index) => {
+        console.log(
+          `     ${index + 1}. ${user.username} (${user.role}) - ${
+            user.location
+          }`
+        );
+        console.log(`        审核人: ${user.reviewerName || "未设置"}`);
+        console.log(
+          `        事件数: ${user.eventCount}, 活动数: ${user.activityCount}`
+        );
+      });
+
+      return true;
+    } else {
+      console.log("❌ 用户列表测试失败:", response.data.message);
+      return false;
+    }
+  } catch (error) {
+    console.log("❌ 用户列表测试出错:", error.message);
+    if (error.response) {
+      console.log(`   状态码: ${error.response.status}`);
+      console.log(`   响应: ${JSON.stringify(error.response.data, null, 2)}`);
+    }
+    return false;
+  }
+}
+
+// 测试用户搜索功能
+async function testUserSearch(token) {
+  console.log("\n🔍 测试用户搜索功能...");
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/users`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        page: 1,
+        pageSize: 10,
+        username: "john", // 搜索包含"john"的用户
+      },
+    });
+
+    if (response.data.code === 200) {
+      console.log("✅ 用户搜索测试成功");
+      console.log(`   搜索结果数: ${response.data.data.total}`);
+      response.data.data.data.forEach((user) => {
+        console.log(`     - ${user.username}`);
+      });
+      return true;
+    } else {
+      console.log("❌ 用户搜索测试失败:", response.data.message);
+      return false;
+    }
+  } catch (error) {
+    console.log("❌ 用户搜索测试出错:", error.message);
+    return false;
+  }
+}
+
+// 测试网络连接
+async function testConnection() {
+  console.log("🌐 测试网络连接...");
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/users`, {
+      timeout: 5000,
+    });
+    // 即使返回401也说明连接正常
+    console.log("✅ 网络连接正常");
+    return true;
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      console.log("✅ 网络连接正常 (需要认证)");
+      return true;
+    }
+    console.log("❌ 网络连接失败:", error.message);
+    return false;
+  }
+}
+
 // 生成测试报告
 function generateTestReport(results) {
   log("\n📊 测试报告", "blue");
@@ -168,6 +294,22 @@ async function runAPITests() {
   // 3. 如果有token，测试验证接口（可选）
   // results['Token验证'] = await testTokenValidation(someToken);
 
+  // 4. 测试登录功能
+  const loginOk = await testLogin();
+  results["登录功能"] = loginOk !== null;
+
+  // 5. 测试用户列表功能
+  const userListOk = await testUserList(loginOk);
+  results["用户列表功能"] = userListOk;
+
+  // 6. 测试用户搜索功能
+  const userSearchOk = await testUserSearch(loginOk);
+  results["用户搜索功能"] = userSearchOk;
+
+  // 7. 测试网络连接
+  const connectionOk = await testConnection();
+  results["网络连接"] = connectionOk;
+
   // 生成报告
   generateTestReport(results);
 
@@ -209,4 +351,8 @@ module.exports = {
   testServerConnection,
   testLoginAPI,
   testTokenValidation,
+  testLogin,
+  testUserList,
+  testUserSearch,
+  testConnection,
 };

@@ -84,7 +84,9 @@ axiosInstance.interceptors.response.use(
       );
 
       // 检查是否需要重新登录
-      if (shouldReLogin(apiResponse.code)) {
+      // 401: 认证失败，需要重新登录
+      // 403: 权限不足，不需要重新登录
+      if (apiResponse.code === RESPONSE_CODES.UNAUTHORIZED) {
         logout().catch(console.warn);
         return Promise.reject(
           createErrorResponse(apiResponse.code, "登录已过期，请重新登录")
@@ -106,7 +108,8 @@ axiosInstance.interceptors.response.use(
       const errorMessage = data?.message || getFriendlyErrorMessage(status);
 
       // 401 未认证错误，自动处理登录
-      if (shouldReLogin(status)) {
+      // 403 权限不足错误，不自动登出
+      if (status === RESPONSE_CODES.UNAUTHORIZED) {
         logout().catch(console.warn);
         return Promise.reject(
           createErrorResponse(status, "登录已过期，请重新登录")

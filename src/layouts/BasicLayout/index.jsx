@@ -11,6 +11,7 @@ import {
   HomeOutlined,
 } from "@ant-design/icons";
 import { getCurrentUser, logout, isAuthenticated } from "../../services/auth";
+import { debugTokenStatus } from "./debug";
 import styles from "./index.module.scss";
 
 const { Header, Sider, Content, Footer } = Layout;
@@ -39,11 +40,17 @@ const BasicLayout = () => {
   }, []);
 
   useEffect(() => {
+    // 调试 Token 状态
+    console.log("🔍 检查用户认证状态...");
+    const tokenStatus = debugTokenStatus();
+
     // 检查登录状态并获取用户信息
     if (isAuthenticated()) {
       const user = getCurrentUser();
       setCurrentUser(user);
+      console.log("✅ 用户已登录:", user);
     } else {
+      console.log("❌ 用户未登录，跳转到登录页");
       // 未登录则跳转到登录页
       navigate("/login");
     }

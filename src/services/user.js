@@ -1,4 +1,60 @@
-// 模拟用户数据
+import { get, post, put, del } from "../utils/request";
+import { API_ENDPOINTS, buildUrl } from "../config/api";
+
+// 字段映射函数 - 将接口数据转换为页面期望的格式
+const mapUserData = (user) => {
+  return {
+    ...user,
+    // 映射角色字段
+    role: user.role === "Administrator" ? "admin" : "user",
+    // 映射reviewer字段
+    reviewer: user.reviewerName || "",
+  };
+};
+
+// 获取用户列表 (接入真实API)
+export const getUserList = async ({
+  page = 1,
+  pageSize = 10,
+  username = "",
+  sortField,
+  sortOrder,
+}) => {
+  try {
+    const params = {
+      page,
+      pageSize,
+    };
+
+    // 添加搜索参数
+    if (username) {
+      params.username = username;
+    }
+
+    // 添加排序参数
+    if (sortField && sortOrder) {
+      params.sortField = sortField;
+      params.sortOrder = sortOrder === "ascend" ? "asc" : "desc";
+    }
+
+    const response = await get(API_ENDPOINTS.USERS.LIST, params);
+
+    // 转换数据格式
+    const mappedData = response.data.map(mapUserData);
+
+    return {
+      data: mappedData,
+      total: response.total,
+      page: response.page,
+      pageSize: response.pageSize,
+    };
+  } catch (error) {
+    console.error("获取用户列表失败:", error);
+    throw error;
+  }
+};
+
+// 模拟用户数据 (保留作为备用)
 const mockUsers = Array.from({ length: 100 }, (_, index) => ({
   id: index + 1,
   username: `用户${index + 1}`,
@@ -36,48 +92,6 @@ const mockActivities = Array.from({ length: 30 }, (_, index) => ({
   duration: `${Math.floor(Math.random() * 4 + 1)}小时`,
 }));
 
-// 获取用户列表
-export const getUserList = async ({
-  page = 1,
-  pageSize = 10,
-  username = "",
-  sortField,
-  sortOrder,
-}) => {
-  // 模拟 API 请求延迟
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  let filteredUsers = [...mockUsers];
-
-  // 搜索过滤
-  if (username) {
-    filteredUsers = filteredUsers.filter((user) =>
-      user.username.toLowerCase().includes(username.toLowerCase())
-    );
-  }
-
-  // 排序
-  if (sortField && sortOrder) {
-    filteredUsers.sort((a, b) => {
-      const compareResult = a[sortField] > b[sortField] ? 1 : -1;
-      return sortOrder === "ascend" ? compareResult : -compareResult;
-    });
-  }
-
-  // 分页
-  const total = filteredUsers.length;
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-  const data = filteredUsers.slice(start, end);
-
-  return {
-    data,
-    total,
-    page,
-    pageSize,
-  };
-};
-
 // 获取用户详情
 export const getUserDetail = async (id) => {
   await new Promise((resolve) => setTimeout(resolve, 500));
@@ -99,7 +113,7 @@ export const updateUser = async (id, data) => {
   return { success: true };
 };
 
-// 更新用户reviewer
+// 更新用户reviewer (暂时保持模拟实现)
 export const updateUserReviewer = async (id, reviewer) => {
   await new Promise((resolve) => setTimeout(resolve, 500));
   const userIndex = mockUsers.findIndex((u) => u.id === Number(id));
@@ -131,8 +145,9 @@ export const getUserActivities = async (userId) => {
   return mockActivities.slice(0, Math.floor(Math.random() * 15 + 1));
 };
 
-// 删除用户
+// 删除用户 (暂时保持模拟实现)
 export const deleteUsers = async (userIds) => {
   await new Promise((resolve) => setTimeout(resolve, 500));
+  console.log("模拟删除用户:", userIds);
   return { success: true };
 };
