@@ -1,11 +1,6 @@
 import axios from "axios";
 import { merge } from "lodash";
-import {
-  getToken,
-  isTokenExpired,
-  refreshToken,
-  logout,
-} from "../services/auth";
+import { getToken, isTokenExpired, refreshToken } from "../services/auth";
 import {
   API_CONFIG,
   TOKEN_CONFIG,
@@ -13,8 +8,6 @@ import {
   parseApiResponse,
   createErrorResponse,
   getFriendlyErrorMessage,
-  shouldReLogin,
-  isNetworkError,
 } from "../config/api";
 
 // 创建 axios 实例
@@ -46,12 +39,12 @@ axiosInstance.interceptors.request.use(
           const newToken = await refreshToken();
           config.headers.Authorization = `${TOKEN_CONFIG.TOKEN_PREFIX} ${newToken}`;
         } catch (error) {
-          // 刷新失败，跳转登录
-          logout().catch(console.warn);
+          // 刷新失败，不自动登出，只返回错误
+          console.warn("Token刷新失败:", error.message);
           return Promise.reject(
             createErrorResponse(
               RESPONSE_CODES.UNAUTHORIZED,
-              "登录已过期，请重新登录"
+              "Token已过期，请手动重新登录"
             )
           );
         }
@@ -83,15 +76,8 @@ axiosInstance.interceptors.response.use(
         apiResponse.message
       );
 
-      // 检查是否需要重新登录
-      // 401: 认证失败，需要重新登录
-      // 403: 权限不足，不需要重新登录
-      if (apiResponse.code === RESPONSE_CODES.UNAUTHORIZED) {
-        logout().catch(console.warn);
-        return Promise.reject(
-          createErrorResponse(apiResponse.code, "登录已过期，请重新登录")
-        );
-      }
+      // 不再自动登出，只返回错误信息
+      // 用户可以根据需要手动重新登录
 
       return Promise.reject(
         createErrorResponse(apiResponse.code, errorMessage, apiResponse.data)
@@ -107,14 +93,8 @@ axiosInstance.interceptors.response.use(
       const { status, data } = error.response;
       const errorMessage = data?.message || getFriendlyErrorMessage(status);
 
-      // 401 未认证错误，自动处理登录
-      // 403 权限不足错误，不自动登出
-      if (status === RESPONSE_CODES.UNAUTHORIZED) {
-        logout().catch(console.warn);
-        return Promise.reject(
-          createErrorResponse(status, "登录已过期，请重新登录")
-        );
-      }
+      // 不再自动登出，所有错误都只返回错误信息
+      // 用户可以根据需要手动重新登录
 
       return Promise.reject(createErrorResponse(status, errorMessage, data));
     } else if (error.request) {

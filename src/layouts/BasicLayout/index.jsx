@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Layout, Menu, Dropdown, Avatar, Button, message } from "antd";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import {
-  CalendarOutlined,
   UserOutlined,
   LogoutOutlined,
   DownOutlined,
@@ -11,7 +10,6 @@ import {
   HomeOutlined,
 } from "@ant-design/icons";
 import { getCurrentUser, logout, isAuthenticated } from "../../services/auth";
-import { debugTokenStatus } from "./debug";
 import styles from "./index.module.scss";
 
 const { Header, Sider, Content, Footer } = Layout;
@@ -40,17 +38,11 @@ const BasicLayout = () => {
   }, []);
 
   useEffect(() => {
-    // 调试 Token 状态
-    console.log("🔍 检查用户认证状态...");
-    const tokenStatus = debugTokenStatus();
-
     // 检查登录状态并获取用户信息
     if (isAuthenticated()) {
       const user = getCurrentUser();
       setCurrentUser(user);
-      console.log("✅ 用户已登录:", user);
     } else {
-      console.log("❌ 用户未登录，跳转到登录页");
       // 未登录则跳转到登录页
       navigate("/login");
     }
@@ -78,7 +70,7 @@ const BasicLayout = () => {
   const handleLogout = async () => {
     try {
       setLoading(true);
-      await logout();
+      await logout(true); // 标记为用户主动发起的登出
       message.success("登出成功");
       // logout 函数会自动跳转到登录页
     } catch (error) {

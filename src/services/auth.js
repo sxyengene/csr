@@ -69,7 +69,16 @@ export const login = async (username, password) => {
 };
 
 // 退出登录 (调用后端API使refresh token失效)
-export const logout = async () => {
+export const logout = async (isUserInitiated = false) => {
+  // 如果不是用户主动发起的登出，则记录警告但不执行
+  if (!isUserInitiated) {
+    console.warn("⚠️ 检测到非用户主动的登出尝试，已阻止自动登出");
+    console.warn("如需登出，请使用用户界面的登出按钮");
+    return;
+  }
+
+  console.log("🚪 用户主动登出...");
+
   const refreshTokenValue = localStorage.getItem(
     TOKEN_CONFIG.REFRESH_TOKEN_KEY
   );
@@ -182,8 +191,8 @@ export const refreshToken = async () => {
 
     return accessToken;
   } catch (error) {
-    // 刷新失败，清除所有token并跳转登录
-    logout().catch(console.warn);
+    // 刷新失败，不自动登出，只抛出错误
+    console.warn("⚠️ Token刷新失败，请手动重新登录:", error.message);
 
     // 处理 axios 错误
     if (error.response) {

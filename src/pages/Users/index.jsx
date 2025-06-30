@@ -54,34 +54,35 @@ const UserList = () => {
 
   // 获取用户列表数据
   const fetchData = useCallback(
-    async (params = {}) => {
+    async (customParams = {}) => {
       try {
         setLoading(true);
         const response = await getUserList({
-          page: params.current || pagination.current,
-          pageSize: params.pageSize || pagination.pageSize,
+          page: customParams.current || pagination.current,
+          pageSize: customParams.pageSize || pagination.pageSize,
           ...searchParams,
-          ...params,
+          ...customParams,
         });
         setData(response.data);
-        setPagination({
-          ...pagination,
+        setPagination((prev) => ({
+          ...prev,
           total: response.total,
-        });
+        }));
       } catch (error) {
-        // 根据错误类型显示不同的提示
+        // 根据错误类型显示不同的提示，但不自动登出
         if (error.code === 403) {
           message.warning("权限不足：需要管理员权限才能查看用户列表");
         } else if (error.code === 401) {
-          message.error("登录已过期，请重新登录");
+          message.warning("认证失败，请检查登录状态或手动重新登录");
         } else {
           message.error(`获取用户列表失败: ${error.message || "未知错误"}`);
         }
+        console.warn("用户列表请求失败:", error);
       } finally {
         setLoading(false);
       }
     },
-    [pagination.current, pagination.pageSize, searchParams]
+    [searchParams, pagination]
   );
 
   useEffect(() => {

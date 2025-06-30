@@ -101,14 +101,6 @@ const UserDetail = () => {
     }
   };
 
-  // 处理事件详情跳转
-  const handleEventDetail = useCallback(
-    (eventId) => {
-      navigate(`/events/${eventId}`);
-    },
-    [navigate]
-  );
-
   // 处理活动详情跳转
   const handleActivityDetail = useCallback(
     (activityId) => {

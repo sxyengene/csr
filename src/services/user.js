@@ -1,5 +1,5 @@
-import { get, post, put, del } from "../utils/request";
-import { API_ENDPOINTS, buildUrl } from "../config/api";
+import { get } from "../utils/request";
+import { API_ENDPOINTS } from "../config/api";
 
 // 字段映射函数 - 将接口数据转换为页面期望的格式
 const mapUserData = (user) => {
