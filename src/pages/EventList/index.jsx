@@ -32,6 +32,10 @@ const EventList = () => {
       // 处理不同类型的错误
       if (error.code === 401) {
         message.error("登录已过期，请重新登录");
+        // 401错误时跳转到登录页
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1500);
       } else if (error.code === 403) {
         message.error("权限不足，无法访问事件列表");
       } else if (error.message) {

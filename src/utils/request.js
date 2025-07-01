@@ -100,14 +100,53 @@ axiosInstance.interceptors.response.use(
 
     return apiResponse;
   },
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+
     // 处理 HTTP 错误
     if (error.response) {
-      // 服务器响应了错误状态码
       const { status, data } = error.response;
-      const errorMessage = data?.message || getFriendlyErrorMessage(status);
 
-      // 创建标准化错误响应
+      // 处理401错误 - 尝试refresh token
+      if (status === 401 && !originalRequest._retry) {
+        const refreshTokenValue = localStorage.getItem(
+          TOKEN_CONFIG.REFRESH_TOKEN_KEY
+        );
+
+        if (
+          refreshTokenValue &&
+          !originalRequest.url?.includes("/auth/login")
+        ) {
+          originalRequest._retry = true; // 标记避免无限重试
+
+          try {
+            console.log("🔄 收到401错误，尝试刷新token...");
+            const newToken = await refreshToken();
+
+            // 更新原请求的Authorization header
+            originalRequest.headers.Authorization = `${TOKEN_CONFIG.TOKEN_PREFIX} ${newToken}`;
+
+            console.log("✅ Token刷新成功，重试原请求");
+            // 使用新token重试原请求
+            return axiosInstance(originalRequest);
+          } catch (refreshError) {
+            console.error("❌ Token刷新失败:", refreshError.message);
+            // 刷新失败，清除所有token并提示重新登录
+            localStorage.removeItem(TOKEN_CONFIG.ACCESS_TOKEN_KEY);
+            localStorage.removeItem(TOKEN_CONFIG.REFRESH_TOKEN_KEY);
+            localStorage.removeItem("token");
+
+            return Promise.reject(
+              createErrorResponse(
+                RESPONSE_CODES.UNAUTHORIZED,
+                "登录已过期且无法刷新，请重新登录"
+              )
+            );
+          }
+        }
+      }
+
+      const errorMessage = data?.message || getFriendlyErrorMessage(status);
       const standardError = createErrorResponse(status, errorMessage, data);
 
       // 记录错误日志
