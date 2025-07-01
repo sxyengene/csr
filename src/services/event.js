@@ -36,27 +36,15 @@ export const getEventList = async ({ page = 1, pageSize = 10 } = {}) => {
   }
 };
 
-// 字段映射函数 - 将页面数据转换为API期望的格式 (创建事件用)
+// 字段映射函数 - 将页面数据转换为API期望的格式 (创建和更新事件通用)
+// 实际测试发现创建和更新接口都使用驼峰命名
 const mapEventDataToAPI = (eventData) => {
   return {
     name: eventData.name,
-    totalTime: eventData.total_time, // 创建接口使用驼峰
+    totalTime: eventData.total_time, // API接口使用驼峰命名
     icon: eventData.icon,
     description: eventData.description,
-    isDisplay: eventData.is_display, // 创建接口使用驼峰
-    visibleLocations: eventData.visibleLocations,
-    visibleRoles: eventData.visibleRoles,
-  };
-};
-
-// 字段映射函数 - 将页面数据转换为API期望的格式 (更新事件用)
-const mapEventDataToUpdateAPI = (eventData) => {
-  return {
-    name: eventData.name,
-    total_time: eventData.total_time, // 更新接口使用下划线
-    icon: eventData.icon,
-    description: eventData.description,
-    is_display: eventData.is_display, // 更新接口使用下划线
+    isDisplay: eventData.is_display, // API接口使用驼峰命名
     visibleLocations: eventData.visibleLocations,
     visibleRoles: eventData.visibleRoles,
   };
@@ -93,9 +81,15 @@ export const createEvent = async (eventData) => {
 // 更新事件
 export const updateEvent = async (eventId, eventData) => {
   try {
-    // 映射字段名并调用API
-    const apiData = mapEventDataToUpdateAPI(eventData);
+    // 映射字段名并调用API (复用创建接口的映射函数)
+    const apiData = mapEventDataToAPI(eventData);
     const url = buildUrl(API_ENDPOINTS.EVENTS.UPDATE, { id: eventId });
+
+    // 调试信息：验证字段映射
+    console.log("🔄 更新事件 - 原始数据:", eventData);
+    console.log("🔄 更新事件 - 映射后数据:", apiData);
+    console.log("🔄 更新事件 - API地址:", url);
+
     const response = await put(url, apiData);
 
     return response;
