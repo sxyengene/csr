@@ -25,18 +25,52 @@ export const login = async (username, password) => {
       throw new Error(data.message || "登录失败");
     }
 
+    // 打印后端返回的完整数据，用于调试
+    console.log("🔍 后端登录响应数据:", data.data);
+
     // 提取token信息
     const { accessToken, refreshToken, tokenType, expiresIn } = data.data;
+
+    // 检查关键字段是否存在
+    console.log("🔑 Token信息检查:", {
+      accessToken: accessToken ? "✅ 存在" : "❌ 缺失",
+      refreshToken: refreshToken ? "✅ 存在" : "❌ 缺失",
+      tokenType: tokenType ? "✅ 存在" : "❌ 缺失",
+      expiresIn: expiresIn ? `✅ ${expiresIn}秒` : "❌ 缺失",
+    });
+
+    // 使用配置的7天失效时间，而不是后端返回的短期时间
+    const actualExpiresIn = TOKEN_CONFIG.DEFAULT_EXPIRES_IN; // 强制使用7天
+
+    // 记录日志显示时间调整
+    if (expiresIn !== actualExpiresIn) {
+      console.log(
+        `🕒 Token失效时间已调整: ${expiresIn}秒 → ${actualExpiresIn}秒 (7天)`
+      );
+    }
 
     // 存储token信息到localStorage
     localStorage.setItem(TOKEN_CONFIG.ACCESS_TOKEN_KEY, accessToken);
     localStorage.setItem("token", accessToken); // 保持向后兼容性
-    localStorage.setItem(TOKEN_CONFIG.REFRESH_TOKEN_KEY, refreshToken);
+
+    // 只有当refreshToken存在时才存储
+    if (refreshToken) {
+      localStorage.setItem(TOKEN_CONFIG.REFRESH_TOKEN_KEY, refreshToken);
+      console.log(
+        `💾 已存储 refreshToken 到 ${TOKEN_CONFIG.REFRESH_TOKEN_KEY}`
+      );
+    } else {
+      console.warn("⚠️ 后端未返回 refreshToken，无法启用自动刷新功能");
+    }
+
     localStorage.setItem(TOKEN_CONFIG.TOKEN_TYPE_KEY, tokenType);
-    localStorage.setItem(TOKEN_CONFIG.EXPIRES_IN_KEY, expiresIn.toString());
+    localStorage.setItem(
+      TOKEN_CONFIG.EXPIRES_IN_KEY,
+      actualExpiresIn.toString()
+    );
     localStorage.setItem(
       TOKEN_CONFIG.EXPIRES_AT_KEY,
-      (Date.now() + expiresIn * 1000).toString()
+      (Date.now() + actualExpiresIn * 1000).toString()
     );
 
     // 返回格式化的响应，适配前端组件期望的格式
@@ -45,7 +79,7 @@ export const login = async (username, password) => {
       accessToken,
       refreshToken,
       tokenType,
-      expiresIn,
+      expiresIn: actualExpiresIn, // 返回调整后的失效时间
       user: {
         id: 1, // 临时ID，后续可以从其他接口获取用户信息
         username: username,
@@ -160,16 +194,61 @@ export const isAuthenticated = () => {
   return token && !isTokenExpired();
 };
 
+// 获取token剩余时间（秒）
+export const getTokenRemainingTime = () => {
+  const expiresAt = localStorage.getItem(TOKEN_CONFIG.EXPIRES_AT_KEY);
+  if (!expiresAt) return 0;
+
+  const remaining = Math.max(0, parseInt(expiresAt) - Date.now());
+  return Math.floor(remaining / 1000); // 转换为秒
+};
+
+// 获取友好的token剩余时间显示
+export const getTokenRemainingTimeDisplay = () => {
+  const remainingSeconds = getTokenRemainingTime();
+
+  if (remainingSeconds <= 0) return "已过期";
+
+  const days = Math.floor(remainingSeconds / (24 * 60 * 60));
+  const hours = Math.floor((remainingSeconds % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((remainingSeconds % (60 * 60)) / 60);
+
+  if (days > 0) return `${days}天${hours}小时`;
+  if (hours > 0) return `${hours}小时${minutes}分钟`;
+  return `${minutes}分钟`;
+};
+
 // 刷新token的函数 (底层服务，使用独立的axios实例)
 export const refreshToken = async () => {
   const refreshTokenValue = localStorage.getItem(
     TOKEN_CONFIG.REFRESH_TOKEN_KEY
   );
+
+  // 调试信息：检查refreshToken存储情况
+  console.log("🔄 准备刷新Token:", {
+    storageKey: TOKEN_CONFIG.REFRESH_TOKEN_KEY,
+    refreshToken: refreshTokenValue ? "✅ 已找到" : "❌ 未找到",
+    value: refreshTokenValue || "undefined",
+  });
+
+  // 检查localStorage中的所有token相关数据
+  console.log("📱 当前localStorage状态:", {
+    accessToken: localStorage.getItem(TOKEN_CONFIG.ACCESS_TOKEN_KEY)
+      ? "✅"
+      : "❌",
+    refreshToken: localStorage.getItem(TOKEN_CONFIG.REFRESH_TOKEN_KEY)
+      ? "✅"
+      : "❌",
+    tokenType: localStorage.getItem(TOKEN_CONFIG.TOKEN_TYPE_KEY) ? "✅" : "❌",
+    expiresAt: localStorage.getItem(TOKEN_CONFIG.EXPIRES_AT_KEY) ? "✅" : "❌",
+  });
+
   if (!refreshTokenValue) {
     throw new Error("没有可用的刷新token");
   }
 
   try {
+    console.log("🔄 发送刷新请求到:", API_ENDPOINTS.AUTH.REFRESH);
     const response = await authAxios.post(API_ENDPOINTS.AUTH.REFRESH, {
       refreshToken: refreshTokenValue,
     });
@@ -182,11 +261,27 @@ export const refreshToken = async () => {
 
     // 更新存储的token信息
     const { accessToken, refreshToken: newRefreshToken, expiresIn } = data.data;
+
+    // 刷新时也使用配置的7天失效时间
+    const actualExpiresIn = TOKEN_CONFIG.DEFAULT_EXPIRES_IN;
+
+    // 记录日志显示时间调整
+    if (expiresIn !== actualExpiresIn) {
+      console.log(
+        `🔄 Token刷新时间已调整: ${expiresIn}秒 → ${actualExpiresIn}秒 (7天)`
+      );
+    }
+
     localStorage.setItem(TOKEN_CONFIG.ACCESS_TOKEN_KEY, accessToken);
+    localStorage.setItem("token", accessToken); // 保持向后兼容性
     localStorage.setItem(TOKEN_CONFIG.REFRESH_TOKEN_KEY, newRefreshToken);
     localStorage.setItem(
+      TOKEN_CONFIG.EXPIRES_IN_KEY,
+      actualExpiresIn.toString()
+    );
+    localStorage.setItem(
       TOKEN_CONFIG.EXPIRES_AT_KEY,
-      (Date.now() + expiresIn * 1000).toString()
+      (Date.now() + actualExpiresIn * 1000).toString()
     );
 
     return accessToken;

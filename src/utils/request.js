@@ -35,19 +35,32 @@ axiosInstance.interceptors.request.use(
     if (token) {
       // 检查 token 是否过期
       if (isTokenExpired()) {
-        try {
-          // 尝试刷新 token
-          const newToken = await refreshToken();
-          config.headers.Authorization = `${TOKEN_CONFIG.TOKEN_PREFIX} ${newToken}`;
-        } catch (error) {
-          // 刷新失败，不自动登出，只返回错误
-          console.warn("Token刷新失败:", error.message);
-          return Promise.reject(
-            createErrorResponse(
-              RESPONSE_CODES.UNAUTHORIZED,
-              "Token已过期，请手动重新登录"
-            )
-          );
+        // 检查是否有refreshToken可用
+        const hasRefreshToken = localStorage.getItem(
+          TOKEN_CONFIG.REFRESH_TOKEN_KEY
+        );
+
+        if (hasRefreshToken) {
+          try {
+            // 尝试刷新 token
+            console.log("🔄 Token已过期，尝试自动刷新...");
+            const newToken = await refreshToken();
+            config.headers.Authorization = `${TOKEN_CONFIG.TOKEN_PREFIX} ${newToken}`;
+            console.log("✅ Token刷新成功");
+          } catch (error) {
+            // 刷新失败，不自动登出，只返回错误
+            console.warn("❌ Token刷新失败:", error.message);
+            return Promise.reject(
+              createErrorResponse(
+                RESPONSE_CODES.UNAUTHORIZED,
+                "Token已过期且刷新失败，请重新登录"
+              )
+            );
+          }
+        } else {
+          // 没有refreshToken，使用过期的token继续请求，让后端返回401
+          console.warn("⚠️ Token已过期但无refreshToken，使用过期token继续请求");
+          config.headers.Authorization = `${TOKEN_CONFIG.TOKEN_PREFIX} ${token}`;
         }
       } else {
         // token 有效，直接使用

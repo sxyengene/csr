@@ -1,5 +1,5 @@
 import { get, post } from "../utils/request";
-import { API_ENDPOINTS } from "../config/api";
+import { API_ENDPOINTS, buildUrl } from "../config/api";
 
 // 字段映射函数 - 将接口数据转换为页面期望的格式
 const mapEventData = (event) => {
@@ -45,6 +45,20 @@ const mapEventDataToAPI = (eventData) => {
     visibleLocations: eventData.visibleLocations,
     visibleRoles: eventData.visibleRoles,
   };
+};
+
+// 获取事件详情
+export const getEventDetail = async (eventId) => {
+  try {
+    const url = buildUrl(API_ENDPOINTS.EVENTS.DETAIL, { id: eventId });
+    const response = await get(url);
+
+    // 映射字段名并返回
+    return mapEventData(response.data);
+  } catch (error) {
+    console.error("获取事件详情失败:", error);
+    throw error;
+  }
 };
 
 // 创建事件

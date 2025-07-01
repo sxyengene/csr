@@ -51,6 +51,10 @@ export const TOKEN_CONFIG = {
   EXPIRES_IN_KEY: "tokenExpiresIn",
   EXPIRES_AT_KEY: "tokenExpiresAt",
   TOKEN_PREFIX: "Bearer",
+  // 默认token失效时间：7天（以秒为单位）
+  DEFAULT_EXPIRES_IN: 7 * 24 * 60 * 60, // 7天 = 604800秒
+  // 最小token失效时间：1小时（防止后端返回过短的时间）
+  MIN_EXPIRES_IN: 60 * 60, // 1小时 = 3600秒
 };
 
 /**

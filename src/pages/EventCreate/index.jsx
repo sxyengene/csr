@@ -9,9 +9,10 @@ import {
   Radio,
   Select,
   Checkbox,
+  Spin,
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
-import { createEvent } from "../../services/event";
+import { createEvent, getEventDetail } from "../../services/event";
 import { showApiError } from "../../utils/request";
 
 const { TextArea } = Input;
@@ -37,21 +38,24 @@ const EventCreate = () => {
   ];
 
   useEffect(() => {
-    if (isEdit) {
-      // 这里应该从API获取事件详情
-      // 模拟从API获取数据
-      const mockEventData = {
-        name: "模拟事件",
-        total_time: 120,
-        icon: "mock-icon-path",
-        description: "这是一个模拟的事件描述",
-        is_display: true,
-        visibleLocations: ["上海", "深圳"], // 可见地区
-        visibleRoles: ["admin", "user"], // 可见角色
-      };
-      form.setFieldsValue(mockEventData);
-    }
-  }, [form, isEdit]);
+    const fetchEventDetail = async () => {
+      if (isEdit && id) {
+        try {
+          setLoading(true);
+          const eventDetail = await getEventDetail(id);
+          form.setFieldsValue(eventDetail);
+        } catch (error) {
+          showApiError(error, "获取事件详情失败");
+          // 获取失败时返回事件列表
+          navigate("/");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchEventDetail();
+  }, [form, isEdit, id, navigate]);
 
   const onFinish = async (values) => {
     try {
@@ -73,6 +77,19 @@ const EventCreate = () => {
       setLoading(false);
     }
   };
+
+  // 编辑模式下等待数据加载完成
+  if (isEdit && loading) {
+    return (
+      <Card
+        title="编辑事件"
+        className="create-event-card"
+        style={{ textAlign: "center", padding: "50px" }}
+      >
+        <Spin size="large" tip="加载事件详情中..." />
+      </Card>
+    );
+  }
 
   return (
     <Card
