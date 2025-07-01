@@ -56,17 +56,13 @@ const EventCreate = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      console.log("提交的数据:", values);
-      console.log("当前操作模式:", isEdit ? "编辑" : "创建");
 
       if (isEdit) {
         // TODO: 调用更新事件的API
         message.success("事件更新成功！");
       } else {
         // 调用创建事件的API
-        console.log("即将调用 createEvent 函数...");
         await createEvent(values);
-        console.log("createEvent 调用成功");
         message.success("事件创建成功！");
       }
 

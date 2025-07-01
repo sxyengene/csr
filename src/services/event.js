@@ -52,9 +52,6 @@ export const createEvent = async (eventData) => {
   try {
     // 映射字段名并调用API
     const apiData = mapEventDataToAPI(eventData);
-    console.log("发送的事件数据:", apiData);
-    console.log("API端点:", API_ENDPOINTS.EVENTS.CREATE);
-
     const response = await post(API_ENDPOINTS.EVENTS.CREATE, apiData);
 
     return response;
