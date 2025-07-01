@@ -224,31 +224,11 @@ export const refreshToken = async () => {
     TOKEN_CONFIG.REFRESH_TOKEN_KEY
   );
 
-  // 调试信息：检查refreshToken存储情况
-  console.log("🔄 准备刷新Token:", {
-    storageKey: TOKEN_CONFIG.REFRESH_TOKEN_KEY,
-    refreshToken: refreshTokenValue ? "✅ 已找到" : "❌ 未找到",
-    value: refreshTokenValue || "undefined",
-  });
-
-  // 检查localStorage中的所有token相关数据
-  console.log("📱 当前localStorage状态:", {
-    accessToken: localStorage.getItem(TOKEN_CONFIG.ACCESS_TOKEN_KEY)
-      ? "✅"
-      : "❌",
-    refreshToken: localStorage.getItem(TOKEN_CONFIG.REFRESH_TOKEN_KEY)
-      ? "✅"
-      : "❌",
-    tokenType: localStorage.getItem(TOKEN_CONFIG.TOKEN_TYPE_KEY) ? "✅" : "❌",
-    expiresAt: localStorage.getItem(TOKEN_CONFIG.EXPIRES_AT_KEY) ? "✅" : "❌",
-  });
-
   if (!refreshTokenValue) {
     throw new Error("没有可用的刷新token");
   }
 
   try {
-    console.log("🔄 发送刷新请求到:", API_ENDPOINTS.AUTH.REFRESH);
     const response = await authAxios.post(API_ENDPOINTS.AUTH.REFRESH, {
       refreshToken: refreshTokenValue,
     });
@@ -260,7 +240,9 @@ export const refreshToken = async () => {
     }
 
     // 更新存储的token信息
-    const { accessToken, refreshToken: newRefreshToken, expiresIn } = data.data;
+    // 根据API文档，refresh接口只返回 accessToken, tokenType, expiresIn
+    // refreshToken保持不变，不会返回新的refreshToken
+    const { accessToken, tokenType, expiresIn } = data.data;
 
     // 刷新时也使用配置的7天失效时间
     const actualExpiresIn = TOKEN_CONFIG.DEFAULT_EXPIRES_IN;
@@ -272,9 +254,10 @@ export const refreshToken = async () => {
       );
     }
 
+    // 只更新accessToken和相关时间信息，refreshToken保持不变
     localStorage.setItem(TOKEN_CONFIG.ACCESS_TOKEN_KEY, accessToken);
     localStorage.setItem("token", accessToken); // 保持向后兼容性
-    localStorage.setItem(TOKEN_CONFIG.REFRESH_TOKEN_KEY, newRefreshToken);
+    localStorage.setItem(TOKEN_CONFIG.TOKEN_TYPE_KEY, tokenType); // 更新tokenType
     localStorage.setItem(
       TOKEN_CONFIG.EXPIRES_IN_KEY,
       actualExpiresIn.toString()
