@@ -26,8 +26,18 @@ const EventList = () => {
       // result包含 {data: [...], total, page, pageSize}
       setEvents(result.data || []);
     } catch (error) {
-      message.error("获取事件列表失败，请重试");
       console.error("获取事件列表失败:", error);
+
+      // 处理不同类型的错误
+      if (error.code === 401) {
+        message.error("登录已过期，请重新登录");
+      } else if (error.code === 403) {
+        message.error("权限不足，无法访问事件列表");
+      } else if (error.message) {
+        message.error(`获取事件列表失败：${error.message}`);
+      } else {
+        message.error("获取事件列表失败，请重试");
+      }
     } finally {
       setLoading(false);
     }
@@ -68,8 +78,18 @@ const EventList = () => {
       );
       message.success(`事件已${checked ? "显示" : "隐藏"}`);
     } catch (error) {
-      message.error("更新失败，请重试");
       console.error("更新事件展示状态失败:", error);
+
+      // 处理不同类型的错误
+      if (error.code === 401) {
+        message.error("登录已过期，请重新登录");
+      } else if (error.code === 403) {
+        message.error("权限不足，无法修改事件状态");
+      } else if (error.message) {
+        message.error(`更新失败：${error.message}`);
+      } else {
+        message.error("更新失败，请重试");
+      }
     }
   };
 

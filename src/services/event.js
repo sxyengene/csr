@@ -1,4 +1,4 @@
-import { get } from "../utils/request";
+import { get, post } from "../utils/request";
 import { API_ENDPOINTS } from "../config/api";
 
 // 字段映射函数 - 将接口数据转换为页面期望的格式
@@ -50,10 +50,11 @@ const mapEventDataToAPI = (eventData) => {
 // 创建事件
 export const createEvent = async (eventData) => {
   try {
-    const { post } = await import("../utils/request");
-
     // 映射字段名并调用API
     const apiData = mapEventDataToAPI(eventData);
+    console.log("发送的事件数据:", apiData);
+    console.log("API端点:", API_ENDPOINTS.EVENTS.CREATE);
+
     const response = await post(API_ENDPOINTS.EVENTS.CREATE, apiData);
 
     return response;

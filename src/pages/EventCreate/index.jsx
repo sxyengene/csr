@@ -12,6 +12,7 @@ import {
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { createEvent } from "../../services/event";
+import { showApiError } from "../../utils/request";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -56,20 +57,22 @@ const EventCreate = () => {
     try {
       setLoading(true);
       console.log("提交的数据:", values);
+      console.log("当前操作模式:", isEdit ? "编辑" : "创建");
 
       if (isEdit) {
         // TODO: 调用更新事件的API
         message.success("事件更新成功！");
       } else {
         // 调用创建事件的API
+        console.log("即将调用 createEvent 函数...");
         await createEvent(values);
+        console.log("createEvent 调用成功");
         message.success("事件创建成功！");
       }
 
       navigate("/"); // 返回事件列表页
     } catch (error) {
-      message.error("操作失败，请重试");
-      console.error("事件操作失败:", error);
+      showApiError(error, isEdit ? "更新事件失败" : "创建事件失败");
     } finally {
       setLoading(false);
     }
@@ -136,7 +139,7 @@ const EventCreate = () => {
             { max: 45, message: "图标路径不能超过45个字符" },
           ]}
         >
-          <Input placeholder="请输入事件图标路径" />
+          <Input placeholder="请输入事件图标路径" showCount maxLength={45} />
         </Form.Item>
 
         <Form.Item

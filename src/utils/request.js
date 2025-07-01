@@ -1,5 +1,6 @@
 import axios from "axios";
 import { merge } from "lodash";
+import { message } from "antd";
 import { getToken, isTokenExpired, refreshToken } from "../services/auth";
 import {
   API_CONFIG,
@@ -93,26 +94,37 @@ axiosInstance.interceptors.response.use(
       const { status, data } = error.response;
       const errorMessage = data?.message || getFriendlyErrorMessage(status);
 
-      // 不再自动登出，所有错误都只返回错误信息
-      // 用户可以根据需要手动重新登录
+      // 创建标准化错误响应
+      const standardError = createErrorResponse(status, errorMessage, data);
 
-      return Promise.reject(createErrorResponse(status, errorMessage, data));
+      // 记录错误日志
+      console.error(`API请求失败 [${status}]:`, {
+        url: error.config?.url,
+        method: error.config?.method?.toUpperCase(),
+        status,
+        message: errorMessage,
+        data,
+      });
+
+      return Promise.reject(standardError);
     } else if (error.request) {
       // 网络错误
-      return Promise.reject(
-        createErrorResponse(
-          RESPONSE_CODES.NETWORK_ERROR,
-          "网络连接失败，请检查网络设置"
-        )
+      const networkError = createErrorResponse(
+        RESPONSE_CODES.NETWORK_ERROR,
+        "网络连接失败，请检查网络设置"
       );
+
+      console.error("网络请求失败:", error.request);
+      return Promise.reject(networkError);
     } else {
       // 其他错误
-      return Promise.reject(
-        createErrorResponse(
-          RESPONSE_CODES.SERVER_ERROR,
-          error.message || "请求失败"
-        )
+      const otherError = createErrorResponse(
+        RESPONSE_CODES.SERVER_ERROR,
+        error.message || "请求失败"
       );
+
+      console.error("请求配置错误:", error.message);
+      return Promise.reject(otherError);
     }
   }
 );
@@ -187,6 +199,59 @@ export const handleApiError = (error) => {
 
   // 其他类型的错误
   return error.message || "请求失败";
+};
+
+/**
+ * 显示标准化的错误消息
+ * 根据错误类型显示相应的提示信息
+ */
+export const showApiError = (error, defaultMessage = "操作失败，请重试") => {
+  console.error("API错误:", error);
+
+  // 处理验证错误 (400)
+  if (error.code === 400 && error.data && typeof error.data === "object") {
+    const validationErrors = error.data;
+    const errorMessages = Object.entries(validationErrors).map(
+      ([field, msg]) => {
+        return `${field}: ${msg}`;
+      }
+    );
+    message.error(`表单验证失败：${errorMessages.join("；")}`);
+    return;
+  }
+
+  // 处理认证错误 (401)
+  if (error.code === 401) {
+    message.error("登录已过期，请重新登录");
+    return;
+  }
+
+  // 处理权限错误 (403)
+  if (error.code === 403) {
+    message.error("权限不足，无法执行此操作");
+    return;
+  }
+
+  // 处理资源不存在 (404)
+  if (error.code === 404) {
+    message.error("请求的资源不存在");
+    return;
+  }
+
+  // 处理服务器错误 (500+)
+  if (error.code >= 500) {
+    message.error("服务器内部错误，请稍后重试");
+    return;
+  }
+
+  // 其他错误，显示具体错误信息或默认消息
+  if (error.message) {
+    message.error(
+      `${defaultMessage.replace("，请重试", "")}：${error.message}`
+    );
+  } else {
+    message.error(defaultMessage);
+  }
 };
 
 // 导出 axios 实例供高级用法使用
