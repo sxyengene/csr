@@ -1,12 +1,14 @@
-import { get, post } from "../utils/request";
+import { get, post, put } from "../utils/request";
 import { API_ENDPOINTS, buildUrl } from "../config/api";
 
 // 字段映射函数 - 将接口数据转换为页面期望的格式
 const mapEventData = (event) => {
   return {
     ...event,
-    // 映射字段名差异
-    is_display: event.isDisplay,
+    // 映射字段名差异：API使用驼峰，表单使用下划线
+    total_time: event.totalTime || event.total_time, // API可能返回totalTime，表单期望total_time
+    is_display:
+      event.isDisplay !== undefined ? event.isDisplay : event.is_display, // API返回isDisplay，表单期望is_display
   };
 };
 
@@ -34,14 +36,27 @@ export const getEventList = async ({ page = 1, pageSize = 10 } = {}) => {
   }
 };
 
-// 字段映射函数 - 将页面数据转换为API期望的格式
+// 字段映射函数 - 将页面数据转换为API期望的格式 (创建事件用)
 const mapEventDataToAPI = (eventData) => {
   return {
     name: eventData.name,
-    totalTime: eventData.total_time,
+    totalTime: eventData.total_time, // 创建接口使用驼峰
     icon: eventData.icon,
     description: eventData.description,
-    isDisplay: eventData.is_display,
+    isDisplay: eventData.is_display, // 创建接口使用驼峰
+    visibleLocations: eventData.visibleLocations,
+    visibleRoles: eventData.visibleRoles,
+  };
+};
+
+// 字段映射函数 - 将页面数据转换为API期望的格式 (更新事件用)
+const mapEventDataToUpdateAPI = (eventData) => {
+  return {
+    name: eventData.name,
+    total_time: eventData.total_time, // 更新接口使用下划线
+    icon: eventData.icon,
+    description: eventData.description,
+    is_display: eventData.is_display, // 更新接口使用下划线
     visibleLocations: eventData.visibleLocations,
     visibleRoles: eventData.visibleRoles,
   };
@@ -71,6 +86,21 @@ export const createEvent = async (eventData) => {
     return response;
   } catch (error) {
     console.error("创建事件失败:", error);
+    throw error;
+  }
+};
+
+// 更新事件
+export const updateEvent = async (eventId, eventData) => {
+  try {
+    // 映射字段名并调用API
+    const apiData = mapEventDataToUpdateAPI(eventData);
+    const url = buildUrl(API_ENDPOINTS.EVENTS.UPDATE, { id: eventId });
+    const response = await put(url, apiData);
+
+    return response;
+  } catch (error) {
+    console.error("更新事件失败:", error);
     throw error;
   }
 };

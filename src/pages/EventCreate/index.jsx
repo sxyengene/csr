@@ -12,7 +12,7 @@ import {
   Spin,
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
-import { createEvent, getEventDetail } from "../../services/event";
+import { createEvent, getEventDetail, updateEvent } from "../../services/event";
 import { showApiError } from "../../utils/request";
 
 const { TextArea } = Input;
@@ -62,7 +62,8 @@ const EventCreate = () => {
       setLoading(true);
 
       if (isEdit) {
-        // TODO: 调用更新事件的API
+        // 调用更新事件的API
+        await updateEvent(id, values);
         message.success("事件更新成功！");
       } else {
         // 调用创建事件的API
