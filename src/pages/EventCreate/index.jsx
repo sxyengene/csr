@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -11,6 +11,7 @@ import {
   Checkbox,
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
+import { createEvent } from "../../services/event";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -20,6 +21,7 @@ const EventCreate = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
+  const [loading, setLoading] = useState(false);
 
   // 地区选项
   const locationOptions = [
@@ -50,16 +52,27 @@ const EventCreate = () => {
     }
   }, [form, isEdit]);
 
-  const onFinish = (values) => {
-    console.log("提交的数据:", values);
-    if (isEdit) {
-      // 这里应该调用更新事件的API
-      message.success("事件更新成功！");
-    } else {
-      // 这里应该调用创建事件的API
-      message.success("事件创建成功！");
+  const onFinish = async (values) => {
+    try {
+      setLoading(true);
+      console.log("提交的数据:", values);
+
+      if (isEdit) {
+        // TODO: 调用更新事件的API
+        message.success("事件更新成功！");
+      } else {
+        // 调用创建事件的API
+        await createEvent(values);
+        message.success("事件创建成功！");
+      }
+
+      navigate("/"); // 返回事件列表页
+    } catch (error) {
+      message.error("操作失败，请重试");
+      console.error("事件操作失败:", error);
+    } finally {
+      setLoading(false);
     }
-    navigate("/"); // 返回事件列表页
   };
 
   return (
@@ -171,7 +184,7 @@ const EventCreate = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" block>
+          <Button type="primary" htmlType="submit" loading={loading} block>
             {isEdit ? "更新事件" : "创建事件"}
           </Button>
         </Form.Item>

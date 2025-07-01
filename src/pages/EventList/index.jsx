@@ -22,8 +22,9 @@ const EventList = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const eventList = await getEventList();
-      setEvents(eventList);
+      const result = await getEventList();
+      // result包含 {data: [...], total, page, pageSize}
+      setEvents(result.data || []);
     } catch (error) {
       message.error("获取事件列表失败，请重试");
       console.error("获取事件列表失败:", error);

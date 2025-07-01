@@ -1,6 +1,15 @@
 import { get } from "../utils/request";
 import { API_ENDPOINTS } from "../config/api";
 
+// 字段映射函数 - 将接口数据转换为页面期望的格式
+const mapEventData = (event) => {
+  return {
+    ...event,
+    // 映射字段名差异
+    is_display: event.isDisplay,
+  };
+};
+
 // 获取事件列表
 export const getEventList = async ({ page = 1, pageSize = 10 } = {}) => {
   try {
@@ -9,10 +18,47 @@ export const getEventList = async ({ page = 1, pageSize = 10 } = {}) => {
       pageSize,
     });
 
-    // 直接返回事件数组，因为API文档显示data字段直接是数组
-    return response.data || [];
+    // 从嵌套的data结构中提取事件数组
+    const events = response.data?.data || [];
+
+    // 映射字段名并返回
+    return {
+      data: events.map(mapEventData),
+      total: response.data?.total || 0,
+      page: response.data?.page || 1,
+      pageSize: response.data?.pageSize || 10,
+    };
   } catch (error) {
     console.error("获取事件列表失败:", error);
+    throw error;
+  }
+};
+
+// 字段映射函数 - 将页面数据转换为API期望的格式
+const mapEventDataToAPI = (eventData) => {
+  return {
+    name: eventData.name,
+    totalTime: eventData.total_time,
+    icon: eventData.icon,
+    description: eventData.description,
+    isDisplay: eventData.is_display,
+    visibleLocations: eventData.visibleLocations,
+    visibleRoles: eventData.visibleRoles,
+  };
+};
+
+// 创建事件
+export const createEvent = async (eventData) => {
+  try {
+    const { post } = await import("../utils/request");
+
+    // 映射字段名并调用API
+    const apiData = mapEventDataToAPI(eventData);
+    const response = await post(API_ENDPOINTS.EVENTS.CREATE, apiData);
+
+    return response;
+  } catch (error) {
+    console.error("创建事件失败:", error);
     throw error;
   }
 };
