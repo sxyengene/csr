@@ -14,6 +14,7 @@ const EventList = () => {
   const navigate = useNavigate();
   const [expandedEvent, setExpandedEvent] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [switchLoading, setSwitchLoading] = useState({}); // 记录每个Switch的loading状态
 
   // 从API获取的事件数据
   const [events, setEvents] = useState([]);
@@ -69,6 +70,10 @@ const EventList = () => {
   // 处理事件展示状态切换
   const handleDisplayToggle = async (eventId, checked, e) => {
     e.stopPropagation(); // 阻止事件冒泡
+
+    // 设置对应Switch的loading状态
+    setSwitchLoading((prev) => ({ ...prev, [eventId]: true }));
+
     try {
       await updateEventDisplay(eventId, checked);
       setEvents((prev) =>
@@ -90,6 +95,9 @@ const EventList = () => {
       } else {
         message.error("更新失败，请重试");
       }
+    } finally {
+      // 清除对应Switch的loading状态
+      setSwitchLoading((prev) => ({ ...prev, [eventId]: false }));
     }
   };
 
@@ -130,6 +138,7 @@ const EventList = () => {
                       <span className={styles.switchLabel}>前台展示</span>
                       <Switch
                         checked={event.is_display}
+                        loading={switchLoading[event.id] || false}
                         onChange={(checked, e) =>
                           handleDisplayToggle(event.id, checked, e)
                         }

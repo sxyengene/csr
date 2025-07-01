@@ -85,11 +85,6 @@ export const updateEvent = async (eventId, eventData) => {
     const apiData = mapEventDataToAPI(eventData);
     const url = buildUrl(API_ENDPOINTS.EVENTS.UPDATE, { id: eventId });
 
-    // 调试信息：验证字段映射
-    console.log("🔄 更新事件 - 原始数据:", eventData);
-    console.log("🔄 更新事件 - 映射后数据:", apiData);
-    console.log("🔄 更新事件 - API地址:", url);
-
     const response = await put(url, apiData);
 
     return response;
@@ -102,9 +97,10 @@ export const updateEvent = async (eventId, eventData) => {
 // 更新事件展示状态
 export const updateEventDisplay = async (eventId, isDisplay) => {
   try {
-    // TODO: 实际的API调用，当前使用模拟
-    console.log(`更新事件 ${eventId} 展示状态为: ${isDisplay}`);
-    return { success: true };
+    const url = buildUrl(API_ENDPOINTS.EVENTS.UPDATE_DISPLAY, { id: eventId });
+    const response = await put(url, { isDisplay });
+
+    return response;
   } catch (error) {
     console.error("更新事件展示状态失败:", error);
     throw error;
