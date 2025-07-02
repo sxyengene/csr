@@ -21,6 +21,7 @@ import {
   getUserEvents,
   getUserActivities,
 } from "../../../services/user";
+import { LOCATION_OPTIONS } from "../../../config/api";
 import "./style.scss";
 
 const { TabPane } = Tabs;
@@ -266,11 +267,14 @@ const UserDetail = () => {
             name="location"
             label="所在地区"
             rules={[{ required: true, message: "请选择所在地区" }]}
-            initialValue="上海"
+            initialValue="SH"
           >
             <Select>
-              <Option value="上海">上海</Option>
-              <Option value="深圳">深圳</Option>
+              {LOCATION_OPTIONS.map((option) => (
+                <Option key={option.value} value={option.value}>
+                  {option.label}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
         </Form>

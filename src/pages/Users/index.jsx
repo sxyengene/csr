@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Table,
   Card,
@@ -22,6 +22,7 @@ import {
   deleteUsers,
   updateUserReviewer,
 } from "../../services/user";
+import { LOCATION_OPTIONS } from "../../config/api";
 import "./style.scss";
 
 const { confirm } = Modal;
@@ -40,6 +41,7 @@ const UserList = () => {
   const [searchParams, setSearchParams] = useState({
     username: "",
     role: "",
+    location: "",
   });
   const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -52,22 +54,51 @@ const UserList = () => {
     { value: "xu jin", label: "xu jin" },
   ];
 
+  // 角色选项
+  const roleOptions = [
+    { value: "", label: "全部角色" },
+    { value: "admin", label: "管理员" },
+    { value: "user", label: "普通用户" },
+  ];
+
+  // 地区选项 (添加"全部地区"选项)
+  const locationFilterOptions = [
+    { value: "", label: "全部地区" },
+    ...LOCATION_OPTIONS,
+  ];
+
+  // 使用useRef存储当前分页状态，避免依赖循环
+  const paginationRef = useRef({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
+
   // 获取用户列表数据
   const fetchData = useCallback(
-    async (customParams = {}) => {
+    async (params = {}) => {
       try {
         setLoading(true);
-        const response = await getUserList({
-          page: customParams.current || pagination.current,
-          pageSize: customParams.pageSize || pagination.pageSize,
+
+        const requestParams = {
+          page: params.current || paginationRef.current.current,
+          pageSize: params.pageSize || paginationRef.current.pageSize,
           ...searchParams,
-          ...customParams,
-        });
+          ...params,
+        };
+
+        const response = await getUserList(requestParams);
         setData(response.data);
-        setPagination((prev) => ({
-          ...prev,
+
+        const newPagination = {
+          current: response.page,
+          pageSize: response.pageSize,
           total: response.total,
-        }));
+        };
+
+        // 同时更新ref和state
+        paginationRef.current = newPagination;
+        setPagination(newPagination);
       } catch (error) {
         // 根据错误类型显示不同的提示，但不自动登出
         if (error.code === 403) {
@@ -82,11 +113,11 @@ const UserList = () => {
         setLoading(false);
       }
     },
-    [searchParams, pagination]
+    [searchParams]
   );
 
   useEffect(() => {
-    fetchData();
+    fetchData({ current: 1, pageSize: 10 });
   }, [fetchData]);
 
   // 处理用户详情跳转
@@ -241,6 +272,25 @@ const UserList = () => {
     setSearchParams((prev) => ({ ...prev, username: e.target.value }));
   }, []);
 
+  // 处理角色筛选变化
+  const handleRoleChange = useCallback((value) => {
+    setSearchParams((prev) => ({ ...prev, role: value }));
+  }, []);
+
+  // 处理地区筛选变化
+  const handleLocationChange = useCallback((value) => {
+    setSearchParams((prev) => ({ ...prev, location: value }));
+  }, []);
+
+  // 重置筛选条件
+  const handleResetFilters = useCallback(() => {
+    setSearchParams({
+      username: "",
+      role: "",
+      location: "",
+    });
+  }, []);
+
   const rowSelection = {
     selectedRowKeys,
     onChange: setSelectedRowKeys,
@@ -251,17 +301,47 @@ const UserList = () => {
       <Card>
         <div className="table-toolbar">
           <div className="search-area">
-            <Input
-              placeholder="搜索用户名"
-              value={searchParams.username}
-              onChange={handleSearchInputChange}
-              style={{ width: 200, marginRight: 16 }}
-              onPressEnter={handleSearch}
-              prefix={<SearchOutlined />}
-            />
-            <Button type="primary" onClick={handleSearch}>
-              搜索
-            </Button>
+            <Space size="middle" wrap>
+              <Input
+                placeholder="搜索用户名"
+                value={searchParams.username}
+                onChange={handleSearchInputChange}
+                style={{ width: 200 }}
+                onPressEnter={handleSearch}
+                prefix={<SearchOutlined />}
+                allowClear
+              />
+              <Select
+                placeholder="选择角色"
+                value={searchParams.role}
+                onChange={handleRoleChange}
+                style={{ width: 120 }}
+                allowClear
+              >
+                {roleOptions.map((option) => (
+                  <Option key={option.value} value={option.value}>
+                    {option.label}
+                  </Option>
+                ))}
+              </Select>
+              <Select
+                placeholder="选择地区"
+                value={searchParams.location}
+                onChange={handleLocationChange}
+                style={{ width: 120 }}
+                allowClear
+              >
+                {locationFilterOptions.map((option) => (
+                  <Option key={option.value} value={option.value}>
+                    {option.label}
+                  </Option>
+                ))}
+              </Select>
+              <Button type="primary" onClick={handleSearch}>
+                搜索
+              </Button>
+              <Button onClick={handleResetFilters}>重置</Button>
+            </Space>
           </div>
           <div className="action-area">
             <Button

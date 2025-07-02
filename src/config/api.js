@@ -37,6 +37,58 @@ export const RESPONSE_MESSAGES = {
   [RESPONSE_CODES.NETWORK_ERROR]: "网络连接失败",
 };
 
+// 地区映射配置
+export const LOCATION_MAPPING = {
+  // 显示名称 -> API值
+  上海: "SH",
+  深圳: "SZ",
+  // API值 -> 显示名称
+  SH: "上海",
+  SZ: "深圳",
+};
+
+// 地区选项列表（用于下拉框）
+export const LOCATION_OPTIONS = [
+  { value: "SH", label: "上海" },
+  { value: "SZ", label: "深圳" },
+];
+
+/**
+ * 将显示名称转换为API值
+ * @param {string} displayName 显示名称（如"上海"）
+ * @returns {string} API值（如"SH"）
+ */
+export const mapLocationToApi = (displayName) => {
+  return LOCATION_MAPPING[displayName] || displayName;
+};
+
+/**
+ * 将API值转换为显示名称
+ * @param {string} apiValue API值（如"SH"）
+ * @returns {string} 显示名称（如"上海"）
+ */
+export const mapLocationToDisplay = (apiValue) => {
+  return LOCATION_MAPPING[apiValue] || apiValue;
+};
+
+/**
+ * 批量转换地区数组：显示名称 -> API值
+ * @param {string[]} displayNames 显示名称数组
+ * @returns {string[]} API值数组
+ */
+export const mapLocationsToApi = (displayNames = []) => {
+  return displayNames.map(mapLocationToApi);
+};
+
+/**
+ * 批量转换地区数组：API值 -> 显示名称
+ * @param {string[]} apiValues API值数组
+ * @returns {string[]} 显示名称数组
+ */
+export const mapLocationsToDisplay = (apiValues = []) => {
+  return apiValues.map(mapLocationToDisplay);
+};
+
 // 默认请求头
 export const DEFAULT_HEADERS = {
   "Content-Type": "application/json",

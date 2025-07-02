@@ -1,5 +1,10 @@
 import { get, post, put } from "../utils/request";
-import { API_ENDPOINTS, buildUrl } from "../config/api";
+import {
+  API_ENDPOINTS,
+  buildUrl,
+  mapLocationsToDisplay,
+  mapLocationsToApi,
+} from "../config/api";
 
 // 字段映射函数 - 将接口数据转换为页面期望的格式
 const mapEventData = (event) => {
@@ -9,6 +14,8 @@ const mapEventData = (event) => {
     total_time: event.totalTime || event.total_time, // API可能返回totalTime，表单期望total_time
     is_display:
       event.isDisplay !== undefined ? event.isDisplay : event.is_display, // API返回isDisplay，表单期望is_display
+    // 映射地区数组：API值(SH/SZ) -> 显示名称(上海/深圳)
+    visibleLocations: mapLocationsToDisplay(event.visibleLocations || []),
   };
 };
 
@@ -45,7 +52,8 @@ const mapEventDataToAPI = (eventData) => {
     icon: eventData.icon,
     description: eventData.description,
     isDisplay: eventData.is_display, // API接口使用驼峰命名
-    visibleLocations: eventData.visibleLocations,
+    // 映射地区数组：显示名称(上海/深圳) -> API值(SH/SZ)
+    visibleLocations: mapLocationsToApi(eventData.visibleLocations || []),
     visibleRoles: eventData.visibleRoles,
   };
 };

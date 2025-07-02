@@ -41,8 +41,8 @@ const ActivityCreate = () => {
 
   // 地区选项
   const locationOptions = [
-    { value: "上海", label: "上海" },
-    { value: "深圳", label: "深圳" },
+    { value: "SH", label: "上海" },
+    { value: "SZ", label: "深圳" },
   ];
 
   // 角色选项
@@ -61,7 +61,7 @@ const ActivityCreate = () => {
         description: "这是一个模拟活动的描述",
         status: "registering",
         templateType: "default", // 模板类型
-        visibleLocations: ["上海", "深圳"], // 可见地区
+        visibleLocations: ["SH", "SZ"], // 可见地区
         visibleRoles: ["admin", "user"], // 可见角色
       };
       form.setFieldsValue(mockActivityData);
@@ -109,7 +109,7 @@ const ActivityCreate = () => {
           initialValues={{
             eventId,
             templateType: "default", // 默认模板类型
-            visibleLocations: ["上海", "深圳"], // 默认全部地区可见
+            visibleLocations: ["SH", "SZ"], // 默认全部地区可见
             visibleRoles: ["admin", "user"], // 默认全部角色可见
           }}
         >

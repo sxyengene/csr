@@ -27,8 +27,8 @@ const EventCreate = () => {
 
   // 地区选项
   const locationOptions = [
-    { value: "上海", label: "上海" },
-    { value: "深圳", label: "深圳" },
+    { value: "SH", label: "上海" },
+    { value: "SZ", label: "深圳" },
   ];
 
   // 角色选项
@@ -104,7 +104,7 @@ const EventCreate = () => {
         autoComplete="off"
         initialValues={{
           is_display: true,
-          visibleLocations: ["上海", "深圳"], // 默认全部地区可见
+          visibleLocations: ["SH", "SZ"], // 默认全部地区可见
           visibleRoles: ["admin", "user"], // 默认全部角色可见
         }}
       >

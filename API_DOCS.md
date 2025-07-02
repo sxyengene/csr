@@ -153,7 +153,7 @@ GET /api/users?page=1&pageSize=10&username=用户&sortField=createTime&sortOrder
 }
 ```
 
-### 4. 获取用户详情
+### 4. 获取用户详情 ✅ 已接入
 
 **GET** `/api/users/{id}`
 
@@ -181,7 +181,7 @@ GET /api/users?page=1&pageSize=10&username=用户&sortField=createTime&sortOrder
 }
 ```
 
-### 5. 更新用户信息
+### 5. 更新用户信息 ✅ 已接入
 
 **PUT** `/api/users/{id}`
 
@@ -237,7 +237,7 @@ GET /api/users?page=1&pageSize=10&username=用户&sortField=createTime&sortOrder
 }
 ```
 
-### 7. 重置用户密码
+### 7. 重置用户密码 ✅ 已接入
 
 **PUT** `/api/users/{id}/reset-password`
 
@@ -734,5 +734,5 @@ GET /api/users?page=1&pageSize=10&username=用户&sortField=createTime&sortOrder
 如有接口相关问题，请联系开发团队。
 
 > 文档版本：v1.0  
-> 最后更新：2025/6/12 17:39:25
+> 最后更新：2025/7/2 11:44:36
 > 维护者：CSR 开发团队
