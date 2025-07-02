@@ -1,4 +1,4 @@
-import { get, put } from "../utils/request";
+import { get, put, del } from "../utils/request";
 import { API_ENDPOINTS, buildUrl, mapLocationToDisplay } from "../config/api";
 
 // 字段映射函数 - 将接口数据转换为页面期望的格式
@@ -163,9 +163,15 @@ export const getUserActivities = async (userId) => {
   }
 };
 
-// 删除用户 (暂时保持模拟实现)
+// 批量删除用户 (接入真实API)
 export const deleteUsers = async (userIds) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  console.log("模拟删除用户:", userIds);
-  return { success: true };
+  try {
+    const response = await del(API_ENDPOINTS.USERS.BATCH_DELETE, {
+      data: { userIds },
+    });
+    return response;
+  } catch (error) {
+    console.error("批量删除用户失败:", error);
+    throw error;
+  }
 };
