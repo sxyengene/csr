@@ -59,29 +59,31 @@ csr-admin/
 
 ## 🎯 核心功能模块
 
-### 1. 🔐 认证模块 ✅ **已完成**
+### 1. 🔐 认证模块 🔄 **进行中**
 
 - ✅ **用户登录** - JWT Token 认证，自动跳转到后台
 - ✅ **用户登出** - 安全退出，Token 失效处理
 - ✅ **路由守卫** - 统一认证检查，自动跳转登录
-- ✅ **Token 管理** - 自动刷新机制，过期处理
+- ⏳ **Token 刷新** - 自动刷新机制 (前端实现，待接入后端 API)
+- ⏳ **Token 验证** - Token 有效性验证 (待接入 API)
 - ✅ **用户信息** - 从 JWT 解析用户信息显示
 
-### 2. 👥 用户管理模块 🔄 **进行中**
+### 2. 👥 用户管理模块 ✅ **已完成**
 
 - ✅ **用户列表** - 分页、搜索、排序、角色地区筛选 (已接入 API)
 - ✅ **用户详情** - 查看用户信息和记录 (已接入 API)
 - ✅ **用户编辑** - 更新用户信息 (已接入 API)
-- ⚠️ **批量操作** - 批量删除用户 (暂用模拟)
+- ✅ **批量操作** - 批量删除用户 (已接入 API)
 - ✅ **密码重置** - 管理员重置密码 (已接入 API)
-- ⚠️ **审核人设置** - 为用户分配审核人 (暂用模拟)
+- ✅ **审核人设置** - 为用户分配审核人 (已接入 API，使用用户列表接口搜索)
 
 ### 3. 📅 事件管理模块 🔄 **进行中**
 
 - ✅ **事件列表** - 展示所有事件 (已接入 API)
 - ✅ **事件创建** - 创建新事件 (已接入 API)
-- ✅ **事件编辑** - 修改事件信息 (已接入完整 API)
+- ✅ **事件编辑** - 修改事件信息 (已接入 API)
 - ✅ **展示控制** - 控制前台显示状态 (已接入 API)
+- ⏳ **事件删除** - 删除事件功能 (待接入 API)
 - 📋 **活动管理** - 每个事件下的活动管理
 
 ### 4. 🎯 活动管理模块
@@ -118,32 +120,40 @@ csr-admin/
 
 | 模块        | 接口数量  | 状态                        |
 | ----------- | --------- | --------------------------- |
-| 🔐 认证模块 | 3 个      | ✅ **已完成** (2/3)         |
+| 🔐 认证模块 | 4 个      | 🔄 **进行中** (2/4)         |
 | 👥 用户管理 | 8 个      | ✅ **已完成** (8/8)         |
 | 📅 事件管理 | 6 个      | 🔄 **进行中** (5/6)         |
 | 🎯 活动管理 | 5 个      | 📋 待接入                   |
-| **总计**    | **22 个** | **15 个已完成，7 个待接入** |
+| **总计**    | **23 个** | **15 个已完成，8 个待接入** |
 
 ### 已接入接口
 
 1. ✅ `POST /api/auth/login` - 用户登录
 2. ✅ `POST /api/auth/logout` - 用户登出
-3. ✅ `GET /api/users` - 用户列表 (新接入)
-4. ✅ `GET /api/users/{id}` - 获取用户详情 (新接入)
-5. ✅ `PUT /api/users/{id}` - 更新用户信息 (新接入)
-6. ✅ `PUT /api/users/{id}/reset-password` - 重置用户密码 (新接入)
-7. ✅ `GET /api/events` - 事件列表 (新接入)
-8. ✅ `POST /api/events` - 创建事件 (新接入)
-9. ✅ `GET /api/events/{id}` - 获取事件详情 (新接入)
-10. ✅ `PUT /api/events/{id}` - 更新事件 (新接入)
-11. ✅ `PUT /api/events/{id}/display` - 更新事件显示状态 (新接入)
-12. ✅ `GET /api/users/{id}/events` - 获取用户事件记录 (新接入)
-13. ✅ `GET /api/users/{id}/activities` - 获取用户活动记录 (新接入)
-14. ✅ `DELETE /api/users/batch-delete` - 批量删除用户 (新接入)
-15. ✅ `GET /api/users/search` - 搜索用户 (新接入)
-16. ✅ `PUT /api/users/{id}/reviewer` - 设置用户审核人 (新接入)
+3. ✅ `GET /api/users` - 用户列表 (支持搜索功能)
+4. ✅ `GET /api/users/{id}` - 获取用户详情
+5. ✅ `PUT /api/users/{id}` - 更新用户信息
+6. ✅ `PUT /api/users/{id}/reset-password` - 重置用户密码
+7. ✅ `GET /api/events` - 事件列表
+8. ✅ `POST /api/events` - 创建事件
+9. ✅ `GET /api/events/{id}` - 获取事件详情
+10. ✅ `PUT /api/events/{id}` - 更新事件
+11. ✅ `PUT /api/events/{id}/display` - 更新事件显示状态
+12. ✅ `GET /api/users/{id}/events` - 获取用户事件记录
+13. ✅ `GET /api/users/{id}/activities` - 获取用户活动记录
+14. ✅ `DELETE /api/users/batch-delete` - 批量删除用户
+15. ✅ `PUT /api/users/{id}/reviewer` - 设置用户审核人
 
 ### 待接入接口
+
+1. ⏳ `POST /api/auth/refresh` - 刷新 Token
+2. ⏳ `POST /api/auth/validate` - 验证 Token
+3. ⏳ `DELETE /api/events/{id}` - 删除事件
+4. ⏳ `GET /api/activities` - 活动列表
+5. ⏳ `GET /api/activities/{id}` - 获取活动详情
+6. ⏳ `POST /api/activities` - 创建活动
+7. ⏳ `PUT /api/activities/{id}` - 更新活动
+8. ⏳ `DELETE /api/activities/{id}` - 删除活动
 
 详细的 API 列表请查看 [API_DOCS.md](./API_DOCS.md)
 

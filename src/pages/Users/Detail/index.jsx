@@ -20,7 +20,7 @@ import {
   resetUserPassword,
   getUserEvents,
   getUserActivities,
-  searchUsers,
+  getUserList,
   updateUserReviewer,
 } from "../../../services/user";
 import { LOCATION_OPTIONS } from "../../../config/api";
@@ -118,8 +118,12 @@ const UserDetail = () => {
 
     try {
       setSearchLoading(true);
-      const results = await searchUsers(value.trim(), 10);
-      setUserSearchResults(results);
+      const response = await getUserList({
+        page: 1,
+        pageSize: 10,
+        username: value.trim(),
+      });
+      setUserSearchResults(response.data);
     } catch (error) {
       message.error("搜索用户失败");
       setUserSearchResults([]);
