@@ -24,7 +24,8 @@ CSR-Admin 是一个基于 React + Ant Design 的企业级管理后台系统，�
 | 👥 用户管理 | 8 个      | 用户 CRUD、密码重置、记录查询 |
 | 📅 事件管理 | 6 个      | 事件 CRUD、状态管理           |
 | 🎯 活动管理 | 5 个      | 活动 CRUD                     |
-| **总计**    | **21 个** | **完整业务闭环**              |
+| 📊 活动明细 | 1 个      | 活动参与数据统计查询          |
+| **总计**    | **22 个** | **完整业务闭环**              |
 
 ---
 
@@ -670,6 +671,63 @@ GET /api/users?page=1&pageSize=10&username=用户&sortField=createTime&sortOrder
 
 ---
 
+## 📊 活动明细模块
+
+### 22. 获取活动明细列表
+
+**GET** `/api/activity-details`
+
+获取用户活动参与明细数据，支持筛选和排序。
+
+**查询参数:**
+
+- `page` (number, 可选): 页码，默认 1
+- `pageSize` (number, 可选): 每页数量，默认 10
+- `username` (string, 可选): 用户名搜索关键词
+- `eventName` (string, 可选): 事件名搜索关键词
+- `activityName` (string, 可选): 活动名搜索关键词
+- `sortField` (string, 可选): 排序字段 (donationAmount)
+- `sortOrder` (string, 可选): 排序方向 (ascend/descend)
+
+**请求示例:**
+
+```
+GET /api/activity-details?page=1&pageSize=10&username=张三&sortField=donationAmount&sortOrder=descend
+```
+
+**响应示例:**
+
+```json
+{
+  "code": 200,
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "username": "张三",
+        "eventName": "年度技术分享大会",
+        "activityName": "开场致辞",
+        "reviewer": "孙雄鹰",
+        "donationAmount": 500.0
+      },
+      {
+        "id": 2,
+        "username": "李四",
+        "eventName": "年度技术分享大会",
+        "activityName": "技术演讲",
+        "reviewer": "张如诚",
+        "donationAmount": 300.0
+      }
+    ],
+    "total": 100,
+    "page": 1,
+    "pageSize": 10
+  }
+}
+```
+
+---
+
 ## 📝 数据结构说明
 
 ### 用户角色
@@ -735,6 +793,6 @@ GET /api/users?page=1&pageSize=10&username=用户&sortField=createTime&sortOrder
 
 如有接口相关问题，请联系开发团队。
 
-> 文档版本：v1.0  
-> 最后更新：2025/7/2 11:44:36
+> 文档版本：v1.1  
+> 最后更新：2025/7/2 19:45:00
 > 维护者：CSR 开发团队

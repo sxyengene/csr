@@ -8,6 +8,7 @@ import BasicLayout from "./layouts/BasicLayout/index";
 import EventCreate from "./pages/EventCreate";
 import EventList from "./pages/EventList";
 import ActivityCreate from "./pages/ActivityCreate";
+import ActivityDetails from "./pages/ActivityDetails";
 import Login from "./pages/Login";
 import UserList from "./pages/Users";
 import UserDetail from "./pages/Users/Detail";
@@ -45,6 +46,7 @@ function App() {
           />
           <Route path="users" element={<UserList />} />
           <Route path="users/:id" element={<UserDetail />} />
+          <Route path="activity-details" element={<ActivityDetails />} />
         </Route>
       </Routes>
     </Router>

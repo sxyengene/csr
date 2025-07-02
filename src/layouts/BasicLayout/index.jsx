@@ -8,6 +8,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   HomeOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import { getCurrentUser, logout, isAuthenticated } from "../../services/auth";
 import styles from "./index.module.scss";
@@ -59,6 +60,11 @@ const BasicLayout = () => {
       key: "/users",
       icon: <UserOutlined />,
       label: "用户管理",
+    },
+    {
+      key: "/activity-details",
+      icon: <UnorderedListOutlined />,
+      label: "活动明细",
     },
   ];
 

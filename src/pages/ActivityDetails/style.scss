@@ -1,0 +1,32 @@
+.activity-details-container {
+  .table-toolbar {
+    margin-bottom: 16px;
+    padding: 16px;
+    background: #fafafa;
+    border-radius: 6px;
+
+    .search-area {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+  }
+
+  // 响应式设计
+  @media (max-width: 768px) {
+    .table-toolbar {
+      padding: 12px;
+      
+      .search-area {
+        flex-direction: column;
+        align-items: stretch;
+        
+        .ant-input,
+        .ant-btn {
+          width: 100%;
+        }
+      }
+    }
+  }
+} 
