@@ -10,7 +10,9 @@ import {
   Checkbox,
   Spin,
   DatePicker,
+  Space,
 } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useNavigate, useParams } from "react-router-dom";
 import { createEvent, getEventDetail, updateEvent } from "../../services/event";
@@ -114,9 +116,24 @@ const EventCreate = () => {
     );
   }
 
+  const handleGoBack = () => {
+    navigate("/");
+  };
+
   return (
     <Card
-      title={isEdit ? "编辑事件" : "创建事件"}
+      title={
+        <Space>
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={handleGoBack}
+          >
+            返回列表
+          </Button>
+          <span>{isEdit ? "编辑事件" : "创建事件"}</span>
+        </Space>
+      }
       className="create-event-card"
     >
       <Form
