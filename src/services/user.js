@@ -69,27 +69,6 @@ export const getUserList = async ({
   }
 };
 
-// 模拟用户数据 (保留作为备用)
-const mockUsers = Array.from({ length: 100 }, (_, index) => ({
-  id: index + 1,
-  username: `用户${index + 1}`,
-  role: index === 0 ? "admin" : "user",
-  location: index % 4 === 0 ? "SZ" : "SH", // 大部分用户在上海，使用API值(SH/SZ)
-  reviewer:
-    index % 3 === 0
-      ? "孙雄鹰"
-      : index % 3 === 1
-      ? "张如诚"
-      : index % 5 === 0
-      ? "xu jin"
-      : "",
-  createTime: new Date(
-    Date.now() - Math.random() * 10000000000
-  ).toLocaleString(),
-  eventCount: Math.floor(Math.random() * 20),
-  activityCount: Math.floor(Math.random() * 10),
-}));
-
 // 注意：mockEvents 和 mockActivities 已移除，现在使用真实API
 
 // 获取用户详情 (接入真实API)
@@ -116,15 +95,33 @@ export const updateUser = async (id, data) => {
   }
 };
 
-// 更新用户reviewer (暂时保持模拟实现)
-export const updateUserReviewer = async (id, reviewer) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const userIndex = mockUsers.findIndex((u) => u.id === Number(id));
-  if (userIndex === -1) {
-    throw new Error("用户不存在");
+// 搜索用户 (接入真实API)
+export const searchUsers = async (keyword, limit = 10) => {
+  try {
+    const params = {
+      keyword,
+      limit,
+    };
+    const response = await get(API_ENDPOINTS.USERS.SEARCH, params);
+    // 处理返回的用户数据，映射必要字段
+    const users = response.data || [];
+    return users.map(mapUserData);
+  } catch (error) {
+    console.error("搜索用户失败:", error);
+    throw error;
   }
-  mockUsers[userIndex].reviewer = reviewer;
-  return { success: true };
+};
+
+// 更新用户reviewer (接入真实API)
+export const updateUserReviewer = async (id, reviewerId) => {
+  try {
+    const url = buildUrl(API_ENDPOINTS.USERS.UPDATE_REVIEWER, { id });
+    const response = await put(url, { reviewerId });
+    return response;
+  } catch (error) {
+    console.error("更新用户reviewer失败:", error);
+    throw error;
+  }
 };
 
 // 重置用户密码 (接入真实API)

@@ -220,6 +220,7 @@ export const API_ENDPOINTS = {
   // 用户管理
   USERS: {
     LIST: "/api/users",
+    SEARCH: "/api/users/search",
     DETAIL: "/api/users/{id}",
     CREATE: "/api/users",
     UPDATE: "/api/users/{id}",

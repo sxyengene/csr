@@ -9,6 +9,7 @@ import {
   Modal,
   Tag,
   Select,
+  Form,
 } from "antd";
 import {
   SearchOutlined,
@@ -45,14 +46,10 @@ const UserList = () => {
   });
   const [reviewerModalVisible, setReviewerModalVisible] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
-  const [selectedReviewer, setSelectedReviewer] = useState("");
-
-  // reviewer选项
-  const reviewerOptions = [
-    { value: "孙雄鹰", label: "孙雄鹰" },
-    { value: "张如诚", label: "张如诚" },
-    { value: "xu jin", label: "xu jin" },
-  ];
+  const [selectedReviewer, setSelectedReviewer] = useState(null);
+  const [userSearchResults, setUserSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [reviewerForm] = Form.useForm();
 
   // 角色选项
   const roleOptions = [
@@ -128,22 +125,63 @@ const UserList = () => {
     [navigate]
   );
 
-  // 处理设置reviewer
-  const handleSetReviewer = useCallback((user) => {
-    setCurrentUser(user);
-    setSelectedReviewer(user.reviewer || "");
-    setReviewerModalVisible(true);
+  // 搜索用户
+  const handleUserSearch = useCallback(async (value) => {
+    if (!value || value.trim().length < 2) {
+      setUserSearchResults([]);
+      return;
+    }
+
+    try {
+      setSearchLoading(true);
+      const response = await getUserList({
+        page: 1,
+        pageSize: 10,
+        username: value.trim(),
+      });
+      setUserSearchResults(response.data);
+    } catch (error) {
+      message.error("搜索用户失败");
+      setUserSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
   }, []);
+
+  // 处理设置reviewer
+  const handleSetReviewer = useCallback(
+    (user) => {
+      setCurrentUser(user);
+      setSelectedReviewer(null);
+      setUserSearchResults([]);
+      reviewerForm.resetFields();
+      setReviewerModalVisible(true);
+    },
+    [reviewerForm]
+  );
 
   // 保存reviewer设置
   const handleSaveReviewer = async () => {
+    if (!selectedReviewer) {
+      message.warning("请选择一个审核人");
+      return;
+    }
+
     try {
-      await updateUserReviewer(currentUser.id, selectedReviewer);
-      message.success("设置成功");
+      await updateUserReviewer(currentUser.id, selectedReviewer.id);
+      message.success("设置审核人成功");
       setReviewerModalVisible(false);
-      fetchData();
+      fetchData(); // 刷新列表
     } catch (error) {
-      message.error("设置失败");
+      if (error.code === 400) {
+        if (error.message.includes("not found")) {
+          message.error("用户或审核人不存在");
+        } else {
+          message.error(error.message || "设置审核人失败");
+        }
+      } else {
+        message.error("设置审核人失败");
+      }
     }
   };
 
@@ -376,28 +414,91 @@ const UserList = () => {
         onOk={handleSaveReviewer}
         onCancel={() => setReviewerModalVisible(false)}
         destroyOnClose
+        width={600}
       >
-        <div style={{ marginBottom: 16 }}>
-          <strong>用户：</strong>
-          {currentUser?.username}
-        </div>
-        <Select
-          placeholder="请选择Reviewer"
-          value={selectedReviewer}
-          onChange={setSelectedReviewer}
-          style={{ width: "100%" }}
-          showSearch
-          filterOption={(input, option) =>
-            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
-        >
-          <Option value="">无</Option>
-          {reviewerOptions.map((option) => (
-            <Option key={option.value} value={option.value}>
-              {option.label}
-            </Option>
-          ))}
-        </Select>
+        <Form form={reviewerForm} layout="vertical">
+          <div style={{ marginBottom: 16 }}>
+            <strong>用户：</strong>
+            {currentUser?.username}
+          </div>
+
+          <Form.Item label="搜索用户" required>
+            <Input.Search
+              placeholder="输入用户名搜索（至少2个字符）"
+              onSearch={handleUserSearch}
+              onChange={(e) => handleUserSearch(e.target.value)}
+              loading={searchLoading}
+              allowClear
+            />
+          </Form.Item>
+
+          {userSearchResults.length > 0 && (
+            <Form.Item label="选择审核人">
+              <div
+                style={{
+                  maxHeight: 200,
+                  overflow: "auto",
+                  border: "1px solid #d9d9d9",
+                  borderRadius: 4,
+                }}
+              >
+                {userSearchResults.map((user) => (
+                  <div
+                    key={user.id}
+                    onClick={() => setSelectedReviewer(user)}
+                    style={{
+                      padding: "8px 12px",
+                      cursor: "pointer",
+                      borderBottom: "1px solid #f0f0f0",
+                      backgroundColor:
+                        selectedReviewer?.id === user.id
+                          ? "#e6f7ff"
+                          : "transparent",
+                      transition: "background-color 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedReviewer?.id !== user.id) {
+                        e.target.style.backgroundColor = "#f5f5f5";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedReviewer?.id !== user.id) {
+                        e.target.style.backgroundColor = "transparent";
+                      }
+                    }}
+                  >
+                    <div style={{ fontWeight: "bold" }}>{user.username}</div>
+                    <div style={{ fontSize: "12px", color: "#666" }}>
+                      {user.role === "admin" ? "管理员" : "普通用户"} ·{" "}
+                      {user.location}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Form.Item>
+          )}
+
+          {selectedReviewer && (
+            <Form.Item label="已选择的审核人">
+              <div
+                style={{
+                  padding: "8px 12px",
+                  backgroundColor: "#f6ffed",
+                  border: "1px solid #b7eb8f",
+                  borderRadius: 4,
+                }}
+              >
+                <div style={{ fontWeight: "bold", color: "#52c41a" }}>
+                  ✓ {selectedReviewer.username}
+                </div>
+                <div style={{ fontSize: "12px", color: "#666" }}>
+                  {selectedReviewer.role === "admin" ? "管理员" : "普通用户"} ·{" "}
+                  {selectedReviewer.location}
+                </div>
+              </div>
+            </Form.Item>
+          )}
+        </Form>
       </Modal>
     </div>
   );
