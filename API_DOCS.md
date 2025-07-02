@@ -401,7 +401,8 @@ GET /api/users?page=1&pageSize=10&username=用户&sortField=createTime&sortOrder
   "data": {
     "id": 1,
     "name": "年度技术分享大会",
-    "total_time": 480, // 总时长(分钟)
+    "startTime": "2024-03-20 09:00:00", // 开始时间
+    "endTime": "2024-03-20 18:00:00", // 结束时间
     "icon": "/icons/tech-conference.png",
     "description": "公司年度技术分享大会，邀请各部门技术专家分享最新技术成果...",
     "is_display": true,
@@ -422,7 +423,8 @@ GET /api/users?page=1&pageSize=10&username=用户&sortField=createTime&sortOrder
 ```json
 {
   "name": "新事件名称", // 必填，最大45字符
-  "total_time": 240, // 必填，总时长(分钟)
+  "startTime": "2024-03-20 09:00:00", // 必填，开始时间
+  "endTime": "2024-03-20 18:00:00", // 必填，结束时间
   "icon": "/icons/new-event.png", // 必填，图标路径，最大45字符
   "description": "事件详细描述...", // 必填，最大1000字符
   "is_display": true, // 必填，是否前台展示

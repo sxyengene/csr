@@ -11,11 +11,13 @@ const mapEventData = (event) => {
   return {
     ...event,
     // 映射字段名差异：API使用驼峰，表单使用下划线
-    total_time: event.totalTime || event.total_time, // API可能返回totalTime，表单期望total_time
     is_display:
       event.isDisplay !== undefined ? event.isDisplay : event.is_display, // API返回isDisplay，表单期望is_display
     // 映射地区数组：API值(SH/SZ) -> 显示名称(上海/深圳)
     visibleLocations: mapLocationsToDisplay(event.visibleLocations || []),
+    // 时间字段保持原始格式，前端页面会处理转换
+    startTime: event.startTime,
+    endTime: event.endTime,
   };
 };
 
@@ -48,7 +50,8 @@ export const getEventList = async ({ page = 1, pageSize = 10 } = {}) => {
 const mapEventDataToAPI = (eventData) => {
   return {
     name: eventData.name,
-    totalTime: eventData.total_time, // API接口使用驼峰命名
+    startTime: eventData.startTime, // 事件开始时间
+    endTime: eventData.endTime, // 事件结束时间
     icon: eventData.icon,
     description: eventData.description,
     isDisplay: eventData.is_display, // API接口使用驼峰命名

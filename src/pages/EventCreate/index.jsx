@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
-  InputNumber,
   Button,
   Card,
   message,
@@ -10,7 +9,9 @@ import {
   Select,
   Checkbox,
   Spin,
+  DatePicker,
 } from "antd";
+import dayjs from "dayjs";
 import { useNavigate, useParams } from "react-router-dom";
 import { createEvent, getEventDetail, updateEvent } from "../../services/event";
 import { showApiError } from "../../utils/request";
@@ -43,7 +44,17 @@ const EventCreate = () => {
         try {
           setLoading(true);
           const eventDetail = await getEventDetail(id);
-          form.setFieldsValue(eventDetail);
+
+          // 处理时间字段的转换 - 将字符串转换为 dayjs 对象
+          const formData = {
+            ...eventDetail,
+            startTime: eventDetail.startTime
+              ? dayjs(eventDetail.startTime)
+              : null,
+            endTime: eventDetail.endTime ? dayjs(eventDetail.endTime) : null,
+          };
+
+          form.setFieldsValue(formData);
         } catch (error) {
           showApiError(error, "获取事件详情失败");
           // 获取失败时返回事件列表
@@ -61,13 +72,24 @@ const EventCreate = () => {
     try {
       setLoading(true);
 
+      // 处理时间格式转换
+      const submitData = {
+        ...values,
+        startTime: values.startTime
+          ? dayjs(values.startTime).format("YYYY-MM-DD HH:mm:ss")
+          : null,
+        endTime: values.endTime
+          ? dayjs(values.endTime).format("YYYY-MM-DD HH:mm:ss")
+          : null,
+      };
+
       if (isEdit) {
         // 调用更新事件的API
-        await updateEvent(id, values);
+        await updateEvent(id, submitData);
         message.success("事件更新成功！");
       } else {
         // 调用创建事件的API
-        await createEvent(values);
+        await createEvent(submitData);
         message.success("事件创建成功！");
       }
 
@@ -131,17 +153,46 @@ const EventCreate = () => {
         </Form.Item>
 
         <Form.Item
-          label="事件时长（分钟）"
-          name="total_time"
+          label="开始时间"
+          name="startTime"
+          rules={[{ required: true, message: "请选择开始时间" }]}
+        >
+          <DatePicker
+            showTime={{
+              format: "HH:mm",
+            }}
+            format="YYYY-MM-DD HH:mm"
+            placeholder="请选择开始时间"
+            style={{ width: "100%" }}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="结束时间"
+          name="endTime"
           rules={[
-            { required: true, message: "请输入事件时长" },
-            { type: "number", min: 1, message: "事件时长必须大于0" },
+            { required: true, message: "请选择结束时间" },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                const startTime = getFieldValue("startTime");
+                if (!value || !startTime) {
+                  return Promise.resolve();
+                }
+                if (dayjs(value).isAfter(dayjs(startTime))) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error("结束时间必须晚于开始时间"));
+              },
+            }),
           ]}
         >
-          <InputNumber
+          <DatePicker
+            showTime={{
+              format: "HH:mm",
+            }}
+            format="YYYY-MM-DD HH:mm"
+            placeholder="请选择结束时间"
             style={{ width: "100%" }}
-            placeholder="请输入事件时长"
-            min={1}
           />
         </Form.Item>
 
