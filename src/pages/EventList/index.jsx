@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Button, Empty, Card, Switch, message, Spin } from "antd";
-import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { Button, Empty, Card, Switch, message, Spin, Modal } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { getEventList, updateEventDisplay } from "../../services/event";
+import {
+  getEventList,
+  updateEventDisplay,
+  deleteEvent,
+} from "../../services/event";
 import styles from "./index.module.scss";
 import ActivityTimeline from "../../components/ActivityTimeline";
 
@@ -65,6 +74,41 @@ const EventList = () => {
   const handleCreateActivity = (eventId, e) => {
     e.stopPropagation();
     navigate(`/activity/create/${eventId}`);
+  };
+
+  const handleDeleteEvent = (eventId, eventName, e) => {
+    e.stopPropagation();
+
+    Modal.confirm({
+      title: "确认删除事件",
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要删除事件"${eventName}"吗？此操作不可撤销。`,
+      okText: "确认删除",
+      okType: "danger",
+      cancelText: "取消",
+      onOk: async () => {
+        try {
+          await deleteEvent(eventId);
+          message.success("事件删除成功");
+          fetchEvents(); // 重新获取事件列表
+        } catch (error) {
+          console.error("删除事件失败:", error);
+
+          // 处理不同类型的错误
+          if (error.code === 401) {
+            message.error("登录已过期，请重新登录");
+          } else if (error.code === 403) {
+            message.error("权限不足，无法删除事件");
+          } else if (error.code === 404) {
+            message.error("事件不存在或已被删除");
+          } else if (error.message) {
+            message.error(`删除失败：${error.message}`);
+          } else {
+            message.error("删除失败，请重试");
+          }
+        }
+      },
+    });
   };
 
   const handleEventClick = (eventId) => {
@@ -166,6 +210,13 @@ const EventList = () => {
                   >
                     创建活动
                   </Button>
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={(e) => handleDeleteEvent(event.id, event.name, e)}
+                  >
+                    删除事件
+                  </Button>
                 </div>
               </div>
               {expandedEvent === event.id && (
@@ -173,6 +224,7 @@ const EventList = () => {
                   <ActivityTimeline
                     activities={event.activities}
                     eventId={event.id}
+                    onActivityDeleted={fetchEvents}
                   />
                 </div>
               )}

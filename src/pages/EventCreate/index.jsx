@@ -9,7 +9,6 @@ import {
   Select,
   Checkbox,
   Spin,
-  DatePicker,
   Space,
 } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
@@ -17,6 +16,7 @@ import dayjs from "dayjs";
 import { useNavigate, useParams } from "react-router-dom";
 import { createEvent, getEventDetail, updateEvent } from "../../services/event";
 import { showApiError } from "../../utils/request";
+import TimeRangeSelector from "../../components/TimeRangeSelector";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -50,10 +50,10 @@ const EventCreate = () => {
           // 处理时间字段的转换 - 将字符串转换为 dayjs 对象
           const formData = {
             ...eventDetail,
-            startTime: eventDetail.startTime
-              ? dayjs(eventDetail.startTime)
-              : null,
-            endTime: eventDetail.endTime ? dayjs(eventDetail.endTime) : null,
+            timeRange:
+              eventDetail.startTime && eventDetail.endTime
+                ? [dayjs(eventDetail.startTime), dayjs(eventDetail.endTime)]
+                : null,
           };
 
           form.setFieldsValue(formData);
@@ -75,15 +75,15 @@ const EventCreate = () => {
       setLoading(true);
 
       // 处理时间格式转换
+      const [startTime, endTime] = values.timeRange || [];
       const submitData = {
         ...values,
-        startTime: values.startTime
-          ? dayjs(values.startTime).format("YYYY-MM-DD HH:mm:ss")
+        startTime: startTime
+          ? dayjs(startTime).format("YYYY-MM-DD HH:mm:ss")
           : null,
-        endTime: values.endTime
-          ? dayjs(values.endTime).format("YYYY-MM-DD HH:mm:ss")
-          : null,
+        endTime: endTime ? dayjs(endTime).format("YYYY-MM-DD HH:mm:ss") : null,
       };
+      delete submitData.timeRange;
 
       if (isEdit) {
         // 调用更新事件的API
@@ -170,47 +170,11 @@ const EventCreate = () => {
         </Form.Item>
 
         <Form.Item
-          label="开始时间"
-          name="startTime"
-          rules={[{ required: true, message: "请选择开始时间" }]}
+          label="事件时间"
+          name="timeRange"
+          rules={[{ required: true, message: "请选择事件时间" }]}
         >
-          <DatePicker
-            showTime={{
-              format: "HH:mm",
-            }}
-            format="YYYY-MM-DD HH:mm"
-            placeholder="请选择开始时间"
-            style={{ width: "100%" }}
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="结束时间"
-          name="endTime"
-          rules={[
-            { required: true, message: "请选择结束时间" },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                const startTime = getFieldValue("startTime");
-                if (!value || !startTime) {
-                  return Promise.resolve();
-                }
-                if (dayjs(value).isAfter(dayjs(startTime))) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(new Error("结束时间必须晚于开始时间"));
-              },
-            }),
-          ]}
-        >
-          <DatePicker
-            showTime={{
-              format: "HH:mm",
-            }}
-            format="YYYY-MM-DD HH:mm"
-            placeholder="请选择结束时间"
-            style={{ width: "100%" }}
-          />
+          <TimeRangeSelector placeholder={["事件开始时间", "事件结束时间"]} />
         </Form.Item>
 
         <Form.Item

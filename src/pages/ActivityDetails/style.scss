@@ -13,6 +13,16 @@
     }
   }
 
+  // 事件统计表格行样式
+  .event-row {
+    background-color: #f0f9ff !important;
+    font-weight: 500;
+  }
+
+  .activity-row {
+    background-color: #fafafa;
+  }
+
   // 响应式设计
   @media (max-width: 768px) {
     .table-toolbar {

@@ -2,18 +2,22 @@ import React, { useEffect } from "react";
 import {
   Form,
   Input,
-  DatePicker,
   Button,
   Card,
   message,
   Select,
   Checkbox,
+  InputNumber,
 } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
+import {
+  createActivity,
+  updateActivity,
+  getActivityDetail,
+} from "../../services/activity";
+import TimeRangeSelector from "../../components/TimeRangeSelector";
 import styles from "./index.module.scss";
-
-const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -23,14 +27,6 @@ const ActivityCreate = () => {
   const [form] = Form.useForm();
   const isEdit = !!activityId;
 
-  // 活动状态选项
-  const activityStatusOptions = [
-    { value: "not_registered", label: "未报名" },
-    { value: "registering", label: "报名中" },
-    { value: "full", label: "已满人" },
-    { value: "ended", label: "已结束" },
-  ];
-
   // 模板类型选项
   const templateTypeOptions = [
     { value: "default", label: "默认" },
@@ -39,64 +35,94 @@ const ActivityCreate = () => {
     { value: "activity", label: "活动" },
   ];
 
-  // 地区选项
+  // 地区选项 - 按项目要求只保留上海和深圳
   const locationOptions = [
-    { value: "SH", label: "上海" },
-    { value: "SZ", label: "深圳" },
+    { value: "上海", label: "上海" },
+    { value: "深圳", label: "深圳" },
   ];
 
-  // 角色选项
+  // 角色选项 - 按项目要求保持admin/user格式
   const roleOptions = [
     { value: "admin", label: "管理员" },
     { value: "user", label: "普通用户" },
   ];
 
   useEffect(() => {
-    if (isEdit) {
-      // TODO: 从API获取活动详情
-      // 模拟从API获取数据
-      const mockActivityData = {
-        name: "模拟活动",
-        timeRange: [dayjs("2024-03-20 09:00"), dayjs("2024-03-20 10:00")],
-        description: "这是一个模拟活动的描述",
-        status: "registering",
-        templateType: "default", // 模板类型
-        visibleLocations: ["SH", "SZ"], // 可见地区
-        visibleRoles: ["admin", "user"], // 可见角色
+    if (isEdit && activityId) {
+      // 从API获取活动详情
+      const fetchActivityDetail = async () => {
+        try {
+          const activityData = await getActivityDetail(activityId);
+
+          // 转换为表单需要的格式
+          const formData = {
+            ...activityData,
+            timeRange: [
+              dayjs(activityData.startTime),
+              dayjs(activityData.endTime),
+            ],
+          };
+
+          form.setFieldsValue(formData);
+        } catch (error) {
+          message.error("获取活动详情失败");
+          console.error("获取活动详情失败:", error);
+        }
       };
-      form.setFieldsValue(mockActivityData);
+
+      fetchActivityDetail();
     }
-  }, [form, isEdit]);
+  }, [form, isEdit, activityId]);
 
   const handleSubmit = async (values) => {
     try {
       const [startTime, endTime] = values.timeRange;
+
+      // 验证时间逻辑
+      if (endTime.isBefore(startTime)) {
+        message.error("结束时间不能早于开始时间");
+        return;
+      }
+
       const activityData = {
         ...values,
-        eventId,
-        startTime: startTime.format("YYYY-MM-DD HH:mm"),
-        endTime: endTime.format("YYYY-MM-DD HH:mm"),
+        eventId: parseInt(eventId),
+        startTime: startTime.format("YYYY-MM-DD HH:mm"), // 保持原格式
+        endTime: endTime.format("YYYY-MM-DD HH:mm"), // 保持原格式
       };
       delete activityData.timeRange;
 
       if (isEdit) {
-        // TODO: 调用更新活动API
-        console.log("更新活动数据:", activityData);
+        // 调用更新活动API
+        await updateActivity(activityId, activityData);
         message.success("更新活动成功");
       } else {
-        // TODO: 调用创建活动API
-        console.log("创建活动数据:", activityData);
+        // 调用创建活动API
+        const response = await createActivity(activityData);
+        console.log("创建活动响应:", response);
         message.success("创建活动成功");
       }
 
-      navigate(`/`);
+      // 返回事件列表页面
+      navigate("/");
     } catch (error) {
-      message.error(isEdit ? "更新活动失败" : "创建活动失败");
+      console.error("活动操作失败:", error);
+
+      // 处理特定的错误消息
+      let errorMessage = isEdit ? "更新活动失败" : "创建活动失败";
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      message.error(errorMessage);
     }
   };
 
   const handleCancel = () => {
-    navigate(`/`);
+    navigate("/");
   };
 
   return (
@@ -107,10 +133,10 @@ const ActivityCreate = () => {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{
-            eventId,
             templateType: "default", // 默认模板类型
-            visibleLocations: ["SH", "SZ"], // 默认全部地区可见
+            visibleLocations: ["上海", "深圳"], // 默认全部地区可见
             visibleRoles: ["admin", "user"], // 默认全部角色可见
+            // duration 和 icon 为空，不设默认值
           }}
         >
           <Form.Item
@@ -130,24 +156,38 @@ const ActivityCreate = () => {
           <Form.Item
             name="name"
             label="活动名称"
-            rules={[{ required: true, message: "请输入活动名称" }]}
+            rules={[
+              { required: true, message: "请输入活动名称" },
+              { max: 45, message: "活动名称不能超过45个字符" },
+            ]}
           >
-            <Input placeholder="请输入活动名称" maxLength={45} />
+            <Input placeholder="请输入活动名称" maxLength={45} showCount />
           </Form.Item>
 
           <Form.Item
-            name="status"
-            label="活动状态"
-            rules={[{ required: true, message: "请选择活动状态" }]}
-            initialValue="not_registered"
+            name="icon"
+            label="活动图标"
+            rules={[{ required: true, message: "请输入活动图标" }]}
           >
-            <Select placeholder="请选择活动状态">
-              {activityStatusOptions.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
-                </Option>
-              ))}
-            </Select>
+            <Input
+              placeholder="请输入图标标识符，如：cleanup-icon"
+              maxLength={45}
+              showCount
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="duration"
+            label="活动时长（分钟）"
+            rules={[{ required: false, message: "请输入活动时长" }]}
+          >
+            <InputNumber
+              placeholder="请输入活动时长"
+              min={0}
+              max={10080} // 一周的分钟数
+              style={{ width: "100%" }}
+              addonAfter="分钟"
+            />
           </Form.Item>
 
           <Form.Item
@@ -155,17 +195,16 @@ const ActivityCreate = () => {
             label="活动时间"
             rules={[{ required: true, message: "请选择活动时间" }]}
           >
-            <RangePicker
-              showTime
-              format="YYYY-MM-DD HH:mm"
-              placeholder={["开始时间", "结束时间"]}
-            />
+            <TimeRangeSelector placeholder={["活动开始时间", "活动结束时间"]} />
           </Form.Item>
 
           <Form.Item
             name="description"
             label="活动描述"
-            rules={[{ required: true, message: "请输入活动描述" }]}
+            rules={[
+              { required: true, message: "请输入活动描述" },
+              { max: 1000, message: "活动描述不能超过1000个字符" },
+            ]}
           >
             <TextArea
               placeholder="请输入活动描述"
@@ -178,7 +217,10 @@ const ActivityCreate = () => {
           <Form.Item
             name="visibleLocations"
             label="可见地区"
-            rules={[{ required: true, message: "请选择可见地区" }]}
+            rules={[
+              { required: true, message: "请选择可见地区" },
+              { type: "array", min: 1, message: "至少选择一个地区" },
+            ]}
           >
             <Select mode="multiple" placeholder="请选择可见地区" allowClear>
               {locationOptions.map((option) => (
@@ -192,7 +234,10 @@ const ActivityCreate = () => {
           <Form.Item
             name="visibleRoles"
             label="可见角色"
-            rules={[{ required: true, message: "请选择可见角色" }]}
+            rules={[
+              { required: true, message: "请选择可见角色" },
+              { type: "array", min: 1, message: "至少选择一个角色" },
+            ]}
           >
             <Checkbox.Group>
               {roleOptions.map((option) => (

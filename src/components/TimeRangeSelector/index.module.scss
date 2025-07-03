@@ -1,0 +1,50 @@
+.timeRangeSelector {
+  .extraFooter {
+    padding: 8px 12px;
+    border-top: 1px solid #f0f0f0;
+    background-color: #fafafa;
+    
+    .ant-btn-link {
+      color: #666;
+      font-size: 12px;
+      padding: 0;
+      height: auto;
+      
+      &:hover {
+        color: #1890ff;
+      }
+    }
+  }
+}
+
+// 自定义 RangePicker 样式
+:global {
+  .ant-picker-large {
+    .ant-picker-separator {
+      display: flex;
+      align-items: center;
+      color: #1890ff;
+    }
+  }
+  
+  .ant-picker-presets {
+    .ant-picker-preset-left {
+      border-right: 1px solid #f0f0f0;
+    }
+    
+    .ant-picker-preset-list {
+      .ant-picker-preset-list-item {
+        &:hover {
+          background-color: #e6f7ff;
+          border-radius: 4px;
+        }
+      }
+    }
+  }
+  
+  .ant-picker-dropdown {
+    .ant-picker-footer {
+      border-top: 1px solid #f0f0f0;
+    }
+  }
+} 

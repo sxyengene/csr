@@ -1,27 +1,20 @@
 import React, { useState } from "react";
-import { Timeline, Empty, Tag } from "antd";
+import { Timeline, Empty, Button, Modal, message } from "antd";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { deleteActivity } from "../../services/activity";
 import clsx from "clsx";
 import styles from "./index.module.scss";
 
-const ActivityTimeline = ({ activities, eventId }) => {
+const ActivityTimeline = ({ activities, eventId, onActivityDeleted }) => {
   const navigate = useNavigate();
   const [expandedActivities, setExpandedActivities] = useState(new Set());
 
-  // 活动状态映射
-  const statusConfig = {
-    not_registered: { color: "default", text: "未报名" },
-    registering: { color: "blue", text: "报名中" },
-    full: { color: "orange", text: "已满人" },
-    ended: { color: "red", text: "已结束" },
-  };
-
   const toggleDescription = (activityId, e) => {
-    // 如果点击的是状态标签，不展开/收起描述
-    if (e.target.closest(".activity-status")) {
-      return;
-    }
-
     const newExpandedActivities = new Set(expandedActivities);
     if (newExpandedActivities.has(activityId)) {
       newExpandedActivities.delete(activityId);
@@ -31,9 +24,47 @@ const ActivityTimeline = ({ activities, eventId }) => {
     setExpandedActivities(newExpandedActivities);
   };
 
-  const handleActivityClick = (activityId, e) => {
+  const handleEditActivity = (activityId, e) => {
     e.stopPropagation();
     navigate(`/activity/edit/${eventId}/${activityId}`);
+  };
+
+  const handleDeleteActivity = (activityId, activityName, e) => {
+    e.stopPropagation();
+
+    Modal.confirm({
+      title: "确认删除活动",
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要删除活动"${activityName}"吗？此操作不可撤销。`,
+      okText: "确认删除",
+      okType: "danger",
+      cancelText: "取消",
+      onOk: async () => {
+        try {
+          await deleteActivity(activityId);
+          message.success("活动删除成功");
+          // 通知父组件刷新数据
+          if (onActivityDeleted) {
+            onActivityDeleted();
+          }
+        } catch (error) {
+          console.error("删除活动失败:", error);
+
+          // 处理不同类型的错误
+          if (error.code === 401) {
+            message.error("登录已过期，请重新登录");
+          } else if (error.code === 403) {
+            message.error("权限不足，无法删除活动");
+          } else if (error.code === 400) {
+            message.error("活动不存在或已被删除");
+          } else if (error.message) {
+            message.error(`删除失败：${error.message}`);
+          } else {
+            message.error("删除失败，请重试");
+          }
+        }
+      },
+    });
   };
 
   if (!activities || activities.length === 0) {
@@ -44,33 +75,49 @@ const ActivityTimeline = ({ activities, eventId }) => {
     <Timeline className={styles.timeline}>
       {activities.map((activity) => (
         <Timeline.Item key={activity.id}>
-          <div
-            className={styles.activityItem}
-            onClick={(e) => handleActivityClick(activity.id, e)}
-          >
-            <div className={styles.activityHeader}>
-              <h3>{activity.name}</h3>
-              <Tag
-                className="activity-status"
-                color={statusConfig[activity.status]?.color || "default"}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {statusConfig[activity.status]?.text || "未知状态"}
-              </Tag>
+          <div className={styles.activityItem}>
+            {/* 悬浮操作按钮 */}
+            <div className={styles.activityActions}>
+              <Button
+                type="text"
+                size="small"
+                icon={<EditOutlined />}
+                onClick={(e) => handleEditActivity(activity.id, e)}
+                title="编辑活动"
+              />
+              <Button
+                type="text"
+                size="small"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={(e) =>
+                  handleDeleteActivity(activity.id, activity.name, e)
+                }
+                title="删除活动"
+              />
             </div>
-            <p className={styles.time}>
-              {`${activity.startTime} - ${activity.endTime}`}
-            </p>
-            {activity.description && (
-              <div
-                className={clsx(styles.description, {
-                  [styles.expanded]: expandedActivities.has(activity.id),
-                })}
-                onClick={(e) => toggleDescription(activity.id, e)}
-              >
-                <p>{activity.description}</p>
+
+            {/* 活动主要信息 */}
+            <div className={styles.activityContent}>
+              <div className={styles.activityHeader}>
+                <h3 className={styles.activityName}>{activity.name}</h3>
               </div>
-            )}
+
+              <p className={styles.time}>
+                {`${activity.startTime} - ${activity.endTime}`}
+              </p>
+
+              {activity.description && (
+                <div
+                  className={clsx(styles.description, {
+                    [styles.expanded]: expandedActivities.has(activity.id),
+                  })}
+                  onClick={(e) => toggleDescription(activity.id, e)}
+                >
+                  <p>{activity.description}</p>
+                </div>
+              )}
+            </div>
           </div>
         </Timeline.Item>
       ))}

@@ -4,58 +4,81 @@
 }
 
 .activityItem {
-  cursor: pointer;
-  padding: 12px 16px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  padding: 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
   position: relative;
   margin: 8px 0;
-  border: 1px solid transparent;
+  border: 1px solid #f0f0f0;
+  background: #fff;
 
   &:hover {
-    background-color: #f5f5f5;
-    border-color: #e8e8e8;
+    background-color: #fafafa;
+    border-color: #d9d9d9;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-    .activityHeader h3 {
-      color: #1890ff;
-    }
-
-    &::after {
-      content: '点击编辑活动';
-      position: absolute;
-      top: 50%;
-      right: 16px;
-      transform: translateY(-50%);
-      font-size: 12px;
-      color: #1890ff;
-      background: #fff;
-      padding: 4px 8px;
-      border-radius: 4px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      opacity: 0.9;
-      pointer-events: none;
+    .activityActions {
+      opacity: 1;
+      visibility: visible;
     }
   }
 
-  .activityHeader {
+  // 悬浮操作按钮
+  .activityActions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-    gap: 8px;
+    gap: 4px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 2;
 
-    h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 500;
-      color: rgba(0, 0, 0, 0.85);
-      transition: color 0.2s ease;
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .ant-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #d9d9d9;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+
+      &:hover {
+        background: #fff;
+        border-color: #40a9ff;
+        transform: scale(1.05);
+      }
+
+      &.ant-btn-dangerous:hover {
+        border-color: #ff4d4f;
+      }
+    }
+  }
+
+  // 活动内容区域
+  .activityContent {
+    .activityHeader {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      margin-right: 80px; // 为右上角按钮留出空间
+
+      .activityName {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.85);
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
 
@@ -71,6 +94,10 @@
     overflow: hidden;
     position: relative;
     cursor: pointer;
+    padding: 8px;
+    margin: 8px -8px 0;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
     
     p {
       margin: 0;
@@ -87,18 +114,21 @@
         left: 0;
         right: 0;
         height: 24px;
-        background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #f5f5f5);
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9));
         pointer-events: none;
       }
     }
 
     &.expanded {
       max-height: none;
+      
+      &::after {
+        display: none;
+      }
     }
 
     &:hover {
       background-color: rgba(0, 0, 0, 0.02);
-      border-radius: 4px;
     }
   }
 }
@@ -106,20 +136,36 @@
 // 响应式调整
 @media screen and (max-width: 768px) {
   .activityItem {
-    .activityHeader {
-      flex-direction: column;
-      align-items: flex-start;
+    padding: 12px;
 
-      h3 {
-        white-space: normal;
-        margin-bottom: 4px;
+    .activityActions {
+      // 移动端始终显示操作按钮
+      opacity: 1;
+      visibility: visible;
+      position: static;
+      justify-content: flex-end;
+      margin-bottom: 8px;
+      margin-top: -4px;
+
+      .ant-btn {
+        background: #f5f5f5;
+        border-color: #d9d9d9;
+      }
+    }
+
+    .activityContent {
+      .activityHeader {
+        margin-right: 0; // 移除右边距
+
+        .activityName {
+          white-space: normal;
+          word-break: break-word;
+        }
       }
     }
 
     &:hover {
-      &::after {
-        display: none;
-      }
+      transform: none; // 移动端不使用悬浮效果
     }
   }
 } 

@@ -353,34 +353,101 @@ GET /api/users?page=1&pageSize=10&username=用户&sortField=createTime&sortOrder
 
 **查询参数:**
 
-- `page` (number, 可选): 页码
-- `pageSize` (number, 可选): 每页数量
+- `page` (number, 可选): 页码，默认 1
+- `pageSize` (number, 可选): 每页数量，默认 10
+- `needsTotal` (boolean, 可选): 是否包含参与人数和总时间统计，默认 false
+- `eventName` (string, 可选): 事件名称搜索关键词（不区分大小写，部分匹配）
 
-**响应示例:**
+**请求示例:**
+
+```
+GET /api/events?page=1&pageSize=10&needsTotal=true&eventName=tech
+```
+
+**响应示例 (needsTotal=true):**
 
 ```json
 {
   "code": 200,
-  "data": [
-    {
-      "id": 1,
-      "name": "年度技术分享大会",
-      "startTime": "2024-03-20 09:00",
-      "endTime": "2024-03-20 18:00",
-      "is_display": true, // 是否前台展示
-      "bgImage": "https://example.com/bg.jpg",
-      "activities": [
-        {
-          "id": 1,
-          "name": "开场致辞",
-          "description": "公司CEO致开场词",
-          "startTime": "2024-03-20 09:00",
-          "endTime": "2024-03-20 09:30",
-          "status": "registering" // not_registered/registering/full/ended
-        }
-      ]
-    }
-  ]
+  "message": "Success",
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "name": "年度技术分享大会",
+        "startTime": "2024-03-20 09:00",
+        "endTime": "2024-03-20 18:00",
+        "isDisplay": true,
+        "bgImage": "https://example.com/bg.jpg",
+        "createdAt": "2024-03-15 14:30",
+        "totalParticipants": 25, // 事件总参与人数
+        "totalTime": 1200, // 事件总时长(分钟)
+        "activities": [
+          {
+            "id": 1,
+            "name": "开场致辞",
+            "description": "公司CEO致开场词",
+            "startTime": "2024-03-20 09:00",
+            "endTime": "2024-03-20 09:30",
+            "status": "ACTIVE",
+            "createdAt": "2024-03-15 14:45",
+            "totalParticipants": 25, // 活动参与人数
+            "totalTime": 750 // 活动总时长(分钟)
+          },
+          {
+            "id": 2,
+            "name": "技术演讲",
+            "description": "技术专家分享",
+            "startTime": "2024-03-20 10:00",
+            "endTime": "2024-03-20 12:00",
+            "status": "ACTIVE",
+            "createdAt": "2024-03-15 14:50",
+            "totalParticipants": 15,
+            "totalTime": 1800
+          }
+        ]
+      }
+    ],
+    "total": 5,
+    "page": 1,
+    "pageSize": 10
+  }
+}
+```
+
+**响应示例 (needsTotal=false 或省略):**
+
+```json
+{
+  "code": 200,
+  "message": "Success",
+  "data": {
+    "data": [
+      {
+        "id": 1,
+        "name": "年度技术分享大会",
+        "startTime": "2024-03-20 09:00",
+        "endTime": "2024-03-20 18:00",
+        "isDisplay": true,
+        "bgImage": "https://example.com/bg.jpg",
+        "createdAt": "2024-03-15 14:30",
+        "activities": [
+          {
+            "id": 1,
+            "name": "开场致辞",
+            "description": "公司CEO致开场词",
+            "startTime": "2024-03-20 09:00",
+            "endTime": "2024-03-20 09:30",
+            "status": "ACTIVE",
+            "createdAt": "2024-03-15 14:45"
+          }
+        ]
+      }
+    ],
+    "total": 5,
+    "page": 1,
+    "pageSize": 10
+  }
 }
 ```
 

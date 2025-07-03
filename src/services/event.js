@@ -1,4 +1,4 @@
-import { get, post, put } from "../utils/request";
+import { get, post, put, del } from "../utils/request";
 import {
   API_ENDPOINTS,
   buildUrl,
@@ -22,12 +22,27 @@ const mapEventData = (event) => {
 };
 
 // 获取事件列表
-export const getEventList = async ({ page = 1, pageSize = 10 } = {}) => {
+export const getEventList = async ({
+  page = 1,
+  pageSize = 10,
+  needsTotal = false,
+  eventName = "",
+} = {}) => {
   try {
-    const response = await get(API_ENDPOINTS.EVENTS.LIST, {
+    const params = {
       page,
       pageSize,
-    });
+    };
+
+    // 添加可选参数
+    if (needsTotal) {
+      params.needsTotal = needsTotal;
+    }
+    if (eventName) {
+      params.eventName = eventName;
+    }
+
+    const response = await get(API_ENDPOINTS.EVENTS.LIST, params);
 
     // 从嵌套的data结构中提取事件数组
     const events = response.data?.data || [];
@@ -114,6 +129,19 @@ export const updateEventDisplay = async (eventId, isDisplay) => {
     return response;
   } catch (error) {
     console.error("更新事件展示状态失败:", error);
+    throw error;
+  }
+};
+
+// 删除事件
+export const deleteEvent = async (eventId) => {
+  try {
+    const url = buildUrl(API_ENDPOINTS.EVENTS.DELETE, { id: eventId });
+    const response = await del(url);
+
+    return response;
+  } catch (error) {
+    console.error("删除事件失败:", error);
     throw error;
   }
 };
