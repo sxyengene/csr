@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -18,6 +18,7 @@ import {
 } from "../../services/activity";
 import TimeRangeSelector from "../../components/TimeRangeSelector";
 import styles from "./index.module.scss";
+import { get } from "../../utils/request";
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -26,14 +27,6 @@ const ActivityCreate = () => {
   const { eventId, activityId } = useParams();
   const [form] = Form.useForm();
   const isEdit = !!activityId;
-
-  // 模板类型选项
-  const templateTypeOptions = [
-    { value: "default", label: "默认" },
-    { value: "meeting", label: "meeting" },
-    { value: "transaction", label: "交易" },
-    { value: "activity", label: "活动" },
-  ];
 
   // 地区选项 - 按项目要求只保留上海和深圳
   const locationOptions = [
@@ -46,6 +39,27 @@ const ActivityCreate = () => {
     { value: "admin", label: "管理员" },
     { value: "user", label: "普通用户" },
   ];
+
+  // 模板相关
+  const [templateList, setTemplateList] = useState([]);
+  const [templateLoading, setTemplateLoading] = useState(false);
+
+  // 获取模板列表
+  const fetchTemplates = async (name = "") => {
+    setTemplateLoading(true);
+    try {
+      const res = await get("/api/templates", name ? { name } : {});
+      setTemplateList(res.data || []);
+    } catch (e) {
+      message.error("获取模板列表失败");
+    } finally {
+      setTemplateLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
 
   useEffect(() => {
     if (isEdit && activityId) {
@@ -61,6 +75,7 @@ const ActivityCreate = () => {
               dayjs(activityData.startTime),
               dayjs(activityData.endTime),
             ],
+            templateId: activityData.templateId, // 回显模板id
           };
 
           form.setFieldsValue(formData);
@@ -89,6 +104,7 @@ const ActivityCreate = () => {
         eventId: parseInt(eventId),
         startTime: startTime.format("YYYY-MM-DD HH:mm"), // 保持原格式
         endTime: endTime.format("YYYY-MM-DD HH:mm"), // 保持原格式
+        templateId: values.templateId, // 保证带上模板id
       };
       delete activityData.timeRange;
 
@@ -133,21 +149,28 @@ const ActivityCreate = () => {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{
-            templateType: "default", // 默认模板类型
             visibleLocations: ["上海", "深圳"], // 默认全部地区可见
             visibleRoles: ["admin", "user"], // 默认全部角色可见
             // duration 和 icon 为空，不设默认值
           }}
         >
+          {/* 新增模板选择 */}
           <Form.Item
-            name="templateType"
-            label="模板类型"
-            rules={[{ required: true, message: "请选择模板类型" }]}
+            name="templateId"
+            label="活动模板"
+            rules={[{ required: true, message: "请选择活动模板" }]}
           >
-            <Select placeholder="请选择模板类型">
-              {templateTypeOptions.map((option) => (
-                <Option key={option.value} value={option.value}>
-                  {option.label}
+            <Select
+              placeholder="请选择活动模板"
+              loading={templateLoading}
+              showSearch
+              filterOption={false}
+              onSearch={fetchTemplates}
+              allowClear
+            >
+              {templateList.map((tpl) => (
+                <Option key={tpl.id} value={tpl.id}>
+                  {tpl.name}
                 </Option>
               ))}
             </Select>
