@@ -73,6 +73,7 @@ const mapEventDataToAPI = (eventData) => {
     // 映射地区数组：显示名称(上海/深圳) -> API值(SH/SZ)
     visibleLocations: mapLocationsToApi(eventData.visibleLocations || []),
     visibleRoles: eventData.visibleRoles,
+    detailImage: eventData.detailImage, // 新增事件详情图片字段
   };
 };
 

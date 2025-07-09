@@ -192,11 +192,7 @@ const ActivityCreate = () => {
             label="活动图标"
             rules={[{ required: true, message: "请输入活动图标" }]}
           >
-            <Input
-              placeholder="请输入图标标识符，如：cleanup-icon"
-              maxLength={45}
-              showCount
-            />
+            <Input placeholder="请输入图标标识符，如：cleanup-icon" />
           </Form.Item>
 
           <Form.Item

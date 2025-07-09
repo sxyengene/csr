@@ -180,12 +180,9 @@ const EventCreate = () => {
         <Form.Item
           label="事件图标"
           name="icon"
-          rules={[
-            { required: true, message: "请输入事件图标路径" },
-            { max: 45, message: "图标路径不能超过45个字符" },
-          ]}
+          rules={[{ required: true, message: "请输入事件图标路径" }]}
         >
-          <Input placeholder="请输入事件图标路径" showCount maxLength={45} />
+          <Input placeholder="请输入事件图标路径" />
         </Form.Item>
 
         <Form.Item
@@ -201,6 +198,18 @@ const EventCreate = () => {
             rows={4}
             showCount
             maxLength={1000}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="事件详情图片"
+          name="detailImage"
+          rules={[{ max: 2000, message: "图片链接不能超过2000个字符" }]}
+        >
+          <Input
+            placeholder="请输入事件详情图片链接（可选，最大2000字符）"
+            maxLength={2000}
+            showCount
           />
         </Form.Item>
 
