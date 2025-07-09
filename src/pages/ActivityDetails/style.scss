@@ -17,10 +17,67 @@
   .event-row {
     background-color: #f0f9ff !important;
     font-weight: 500;
+    
+    // 事件名称列的展开/收起按钮样式
+    .ant-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      box-shadow: none;
+      color: #1890ff;
+      
+      &:hover {
+        background-color: rgba(24, 144, 255, 0.1);
+        border-radius: 4px;
+      }
+      
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
+      
+      .anticon {
+        font-size: 12px;
+      }
+    }
   }
 
   .activity-row {
     background-color: #fafafa;
+  }
+
+  // 事件名称列的容器样式
+  .event-name-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    .expand-toggle {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: rgba(24, 144, 255, 0.1);
+        border-radius: 2px;
+      }
+    }
+    
+    .event-title {
+      font-weight: bold;
+      flex: 1;
+    }
+  }
+
+  .activity-name-indent {
+    padding-left: 24px;
+    color: #666;
   }
 
   // 响应式设计
@@ -37,6 +94,19 @@
           width: 100%;
         }
       }
+    }
+    
+    .event-name-container {
+      gap: 6px;
+      
+      .expand-toggle {
+        width: 14px;
+        height: 14px;
+      }
+    }
+    
+    .activity-name-indent {
+      padding-left: 20px;
     }
   }
 } 

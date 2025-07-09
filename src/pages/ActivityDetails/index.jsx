@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Table, Card, Input, Button, Space, message, Tabs } from "antd";
-import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  ReloadOutlined,
+  DownOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
 import { getEventList } from "../../services/event";
 import "./style.scss";
 
@@ -71,6 +76,9 @@ const ActivityDetails = () => {
     pageSize: 10,
     total: 0,
   });
+
+  // 新增：每个事件的展开/收起状态
+  const [expandedEvents, setExpandedEvents] = useState(new Set());
 
   // 使用useRef存储当前分页状态，避免依赖循环
   const paginationRef = useRef({
@@ -184,6 +192,7 @@ const ActivityDetails = () => {
           tableData.push({
             id: `event-${event.id}`,
             rowType: "event",
+            eventId: event.id, // 添加eventId字段用于展开/收起控制
             index: index++,
             eventName: event.name,
             activityName: "",
@@ -191,7 +200,7 @@ const ActivityDetails = () => {
             activityTotalTime: "",
             eventParticipants: event.totalParticipants || 0,
             eventTotalTime: event.totalTime || 0,
-            eventTotalAmount: event.totalAmount || 0, // 新增
+            eventTotalAmount: event.totalAmount || 0,
           });
 
           // 添加活动行
@@ -200,6 +209,7 @@ const ActivityDetails = () => {
               tableData.push({
                 id: `activity-${activity.id}`,
                 rowType: "activity",
+                eventId: event.id, // 添加eventId字段用于展开/收起控制
                 index: index++,
                 eventName: "",
                 activityName: activity.name,
@@ -213,6 +223,10 @@ const ActivityDetails = () => {
         });
 
         setEventData(tableData);
+
+        // 默认展开所有事件
+        const eventIds = response.data.map((event) => event.id);
+        setExpandedEvents(new Set(eventIds));
 
         const newPagination = {
           current: response.page,
@@ -330,6 +344,19 @@ const ActivityDetails = () => {
     });
   }, []);
 
+  // 处理单个事件的展开/收起
+  const handleEventToggle = useCallback((eventId) => {
+    setExpandedEvents((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(eventId)) {
+        newSet.delete(eventId);
+      } else {
+        newSet.add(eventId);
+      }
+      return newSet;
+    });
+  }, []);
+
   // 事件统计表格列配置
   const eventColumns = [
     {
@@ -343,13 +370,32 @@ const ActivityDetails = () => {
       dataIndex: "eventName",
       key: "eventName",
       width: "20%",
-      render: (text, record) => (
-        <span
-          style={{ fontWeight: record.rowType === "event" ? "bold" : "normal" }}
-        >
-          {text}
-        </span>
-      ),
+      render: (text, record) => {
+        if (record.rowType === "event") {
+          return (
+            <div className="event-name-container">
+              <Button
+                type="text"
+                size="small"
+                className="expand-toggle"
+                icon={
+                  expandedEvents.has(record.eventId) ? (
+                    <DownOutlined />
+                  ) : (
+                    <RightOutlined />
+                  )
+                }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEventToggle(record.eventId);
+                }}
+              />
+              <span className="event-title">{text}</span>
+            </div>
+          );
+        }
+        return <span className="activity-name-indent">{text}</span>;
+      },
     },
     {
       title: "Activity名称",
@@ -448,6 +494,18 @@ const ActivityDetails = () => {
     });
   }, []);
 
+  // 事件统计表格数据处理（根据展开状态过滤）
+  const getDisplayEventData = () => {
+    return eventData.filter((row) => {
+      // 事件行总是显示
+      if (row.rowType === "event") {
+        return true;
+      }
+      // 活动行只在对应事件展开时显示
+      return expandedEvents.has(row.eventId);
+    });
+  };
+
   const tabItems = [
     {
       key: "statistics",
@@ -480,7 +538,7 @@ const ActivityDetails = () => {
           </div>
           <Table
             columns={eventColumns}
-            dataSource={eventData}
+            dataSource={getDisplayEventData()}
             pagination={eventPagination}
             loading={eventLoading}
             onChange={handleEventTableChange}

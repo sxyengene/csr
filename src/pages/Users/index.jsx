@@ -224,7 +224,7 @@ const UserList = () => {
               handleSetReviewer(record);
             }}
           >
-            设置
+            审核人
           </Button>
         </Space>
       ),
@@ -409,7 +409,7 @@ const UserList = () => {
 
       {/* 设置Reviewer弹窗 */}
       <Modal
-        title="设置Reviewer"
+        title="Reviewer"
         open={reviewerModalVisible}
         onOk={handleSaveReviewer}
         onCancel={() => setReviewerModalVisible(false)}

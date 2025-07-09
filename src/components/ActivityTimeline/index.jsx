@@ -100,11 +100,19 @@ const ActivityTimeline = ({ activities, eventId, onActivityDeleted }) => {
             {/* 活动主要信息 */}
             <div className={styles.activityContent}>
               <div className={styles.activityHeader}>
-                <h3 className={styles.activityName}>{activity.name}</h3>
+                <h3
+                  className={styles.activityName}
+                  style={{ whiteSpace: "normal", wordBreak: "break-all" }}
+                >
+                  {activity.name}
+                </h3>
               </div>
 
               <p className={styles.time}>
-                {`${activity.startTime} - ${activity.endTime}`}
+                {`${activity.startTime?.slice(
+                  0,
+                  10
+                )} - ${activity.endTime?.slice(0, 10)}`}
               </p>
 
               {activity.description && (

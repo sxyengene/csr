@@ -157,11 +157,11 @@ const ActivityCreate = () => {
           {/* 新增模板选择 */}
           <Form.Item
             name="templateId"
-            label="活动模板"
-            rules={[{ required: true, message: "请选择活动模板" }]}
+            label="活动类型"
+            rules={[{ required: true, message: "请选择活动类型" }]}
           >
             <Select
-              placeholder="请选择活动模板"
+              placeholder="请选择活动类型"
               loading={templateLoading}
               showSearch
               filterOption={false}

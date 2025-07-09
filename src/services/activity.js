@@ -14,7 +14,7 @@ const mapActivityDataToAPI = (activityData) => {
   return {
     name: activityData.name,
     eventId: parseInt(activityData.eventId),
-    templateId: TEMPLATE_TYPE_MAPPING[activityData.templateType] || 1,
+    templateId: parseInt(activityData.templateId) || 1, // 直接使用templateId，不再映射templateType
     duration: parseInt(activityData.duration) || 0, // 直接使用用户输入的duration
     icon: activityData.icon,
     description: activityData.description,
@@ -28,15 +28,10 @@ const mapActivityDataToAPI = (activityData) => {
 
 // 字段映射函数 - 将API数据转换为前端期望的格式
 const mapActivityDataFromAPI = (activityData) => {
-  // 反向查找templateType
-  const templateType =
-    Object.keys(TEMPLATE_TYPE_MAPPING).find(
-      (key) => TEMPLATE_TYPE_MAPPING[key] === activityData.templateId
-    ) || "default";
-
   return {
     ...activityData,
-    templateType,
+    // 直接返回templateId，不再需要反向映射templateType
+    templateId: activityData.templateId,
     // visibleRoles保持原样，不转换
   };
 };
