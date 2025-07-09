@@ -191,6 +191,7 @@ const ActivityDetails = () => {
             activityTotalTime: "",
             eventParticipants: event.totalParticipants || 0,
             eventTotalTime: event.totalTime || 0,
+            eventTotalAmount: event.totalAmount || 0, // 新增
           });
 
           // 添加活动行
@@ -404,6 +405,15 @@ const ActivityDetails = () => {
           {text}
         </span>
       ),
+    },
+    {
+      title: "总金额",
+      dataIndex: "eventTotalAmount",
+      key: "eventTotalAmount",
+      width: "13%",
+      align: "center",
+      render: (text, record) =>
+        record.rowType === "event" ? `¥${(text || 0).toFixed(2)}` : "",
     },
   ];
 
