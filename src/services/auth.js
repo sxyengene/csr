@@ -147,7 +147,7 @@ export const logout = async (isUserInitiated = false) => {
   localStorage.removeItem(TOKEN_CONFIG.EXPIRES_AT_KEY);
 
   // 跳转到登录页
-  window.location.href = "/login";
+  window.location.href = "/admin/#/login";
 };
 
 // 获取当前token
