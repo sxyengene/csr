@@ -292,6 +292,44 @@ const UserDetail = () => {
               rowKey="id"
               pagination={false}
             />
+
+            {/* 移动端事件列表视图 */}
+            <div className="mobile-list-view">
+              {events.map((event) => (
+                <div key={event.id} className="list-item">
+                  <div className="item-title">{event.name}</div>
+                  <div className="item-content">
+                    <div className="content-item">
+                      <strong>类型：</strong>
+                      {event.type}
+                    </div>
+                    <div className="content-item">
+                      <strong>时长：</strong>
+                      {event.duration}
+                    </div>
+                    <div className="content-item">
+                      <strong>状态：</strong>
+                      <Tag
+                        color={event.status === "active" ? "green" : "default"}
+                      >
+                        {event.status === "active" ? "进行中" : "已结束"}
+                      </Tag>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {events.length === 0 && (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "24px",
+                    color: "#999",
+                  }}
+                >
+                  暂无事件记录
+                </div>
+              )}
+            </div>
           </TabPane>
           <TabPane tab="活动记录" key="activities">
             <Table
@@ -300,6 +338,48 @@ const UserDetail = () => {
               rowKey="id"
               pagination={false}
             />
+
+            {/* 移动端活动列表视图 */}
+            <div className="mobile-list-view">
+              {activities.map((activity) => (
+                <div key={activity.id} className="list-item">
+                  <div className="item-title">{activity.name}</div>
+                  <div className="item-content">
+                    <div className="content-item">
+                      <strong>所属事件：</strong>
+                      {activity.eventName}
+                    </div>
+                    <div className="content-item">
+                      <strong>参与时长：</strong>
+                      {activity.duration}
+                    </div>
+                  </div>
+                  <div className="item-action">
+                    <Button
+                      type="link"
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleActivityDetail(activity.id);
+                      }}
+                    >
+                      查看详情
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              {activities.length === 0 && (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "24px",
+                    color: "#999",
+                  }}
+                >
+                  暂无活动记录
+                </div>
+              )}
+            </div>
           </TabPane>
         </Tabs>
       </Card>

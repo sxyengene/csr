@@ -1,26 +1,294 @@
+@import '../../../styles/breakpoints.scss';
+
 .user-detail-container {
   padding: 24px;
 
-  .ant-descriptions {
-    margin-bottom: 24px;
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 12px;
   }
 
+  // Card组件移动端优化
+  .ant-card {
+    @media (max-width: 768px) {
+      .ant-card-head {
+        padding: 12px 16px;
+        
+        .ant-card-head-title {
+          font-size: 16px;
+        }
+      }
+      
+      .ant-card-body {
+        padding: 16px;
+      }
+    }
+    
+    // Card extra区域按钮响应式
+    .ant-card-extra {
+      @media (max-width: 768px) {
+        .ant-space {
+          flex-direction: column;
+          align-items: stretch;
+          width: 100%;
+          
+          .ant-space-item {
+            .ant-btn {
+              width: 100%;
+              margin-bottom: 4px;
+            }
+          }
+        }
+      }
+      
+      @media (max-width: 576px) {
+        .ant-space {
+          .ant-space-item {
+            .ant-btn {
+              font-size: 12px;
+              padding: 4px 8px;
+              height: auto;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Descriptions组件移动端优化
+  .ant-descriptions {
+    margin-bottom: 24px;
+
+    @media (max-width: 768px) {
+      margin-bottom: 16px;
+      
+      .ant-descriptions-item {
+        padding-bottom: 8px;
+        
+        .ant-descriptions-item-label {
+          font-size: 13px;
+          padding-right: 8px;
+        }
+        
+        .ant-descriptions-item-content {
+          font-size: 13px;
+        }
+      }
+    }
+
+    @media (max-width: 576px) {
+      // 强制单列布局
+      .ant-descriptions-view {
+        display: block;
+        
+        .ant-descriptions-row {
+          display: block;
+          
+          .ant-descriptions-item {
+            display: block;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 8px;
+            
+            &:last-child {
+              border-bottom: none;
+              margin-bottom: 0;
+            }
+            
+            .ant-descriptions-item-label {
+              display: block;
+              font-weight: 500;
+              margin-bottom: 4px;
+              padding-right: 0;
+            }
+            
+            .ant-descriptions-item-content {
+              display: block;
+              padding-left: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Tabs组件移动端优化
   .detail-tabs {
     margin-top: 24px;
 
+    @media (max-width: 768px) {
+      margin-top: 16px;
+      
+      .ant-tabs-nav {
+        margin-bottom: 12px;
+        
+        .ant-tabs-tab {
+          font-size: 13px;
+          padding: 6px 12px;
+        }
+      }
+      
+      .ant-tabs-content-holder {
+        .ant-tabs-content {
+          .ant-tabs-tabpane {
+            padding-top: 8px;
+          }
+        }
+      }
+    }
+
+    // 表格在tabs中的移动端适配
     .ant-table {
       margin-top: 16px;
+
+      @media (max-width: 768px) {
+        margin-top: 8px;
+        font-size: 12px;
+        
+        .ant-table-thead > tr > th {
+          padding: 6px 4px;
+          font-size: 11px;
+        }
+        
+        .ant-table-tbody > tr > td {
+          padding: 6px 4px;
+          font-size: 12px;
+        }
+        
+        // 隐藏不重要的列
+        .ant-table-column-sort {
+          display: none;
+        }
+      }
+
+      @media (max-width: 576px) {
+        // 极小屏幕隐藏表格，使用列表样式
+        display: none;
+      }
+    }
+  }
+
+  // 移动端列表样式（替代表格）
+  .mobile-list-view {
+    display: none;
+    
+    @media (max-width: 576px) {
+      display: block;
+      
+      .list-item {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        padding: 12px;
+        margin-bottom: 8px;
+        
+        .item-title {
+          font-weight: 500;
+          font-size: 14px;
+          margin-bottom: 6px;
+          color: #333;
+        }
+        
+        .item-content {
+          font-size: 12px;
+          color: #666;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          
+          .content-item {
+            flex: 1;
+            min-width: 45%;
+          }
+        }
+        
+        .item-action {
+          margin-top: 8px;
+          text-align: right;
+          
+          .ant-btn {
+            font-size: 11px;
+            padding: 2px 6px;
+            height: auto;
+          }
+        }
+      }
     }
   }
 
   .ant-tag {
     min-width: 60px;
     text-align: center;
+
+    @media (max-width: 768px) {
+      min-width: 50px;
+      font-size: 11px;
+      padding: 0 4px;
+    }
   }
 
   .ant-card-extra {
     .ant-space {
       gap: 8px;
+      
+      @media (max-width: 768px) {
+        gap: 4px;
+      }
+    }
+  }
+}
+
+// 弹窗移动端适配（继承列表页面的样式）
+.ant-modal {
+  @media (max-width: 768px) {
+    max-width: calc(100vw - 32px) !important;
+    margin: 16px auto;
+    
+    .ant-modal-content {
+      .ant-modal-body {
+        padding: 16px;
+        
+        .ant-form-item {
+          margin-bottom: 16px;
+          
+          .ant-form-item-label {
+            font-size: 13px;
+          }
+          
+          .ant-input,
+          .ant-select {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: 576px) {
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px auto;
+    
+    .ant-modal-content {
+      .ant-modal-header {
+        padding: 12px 16px;
+        
+        .ant-modal-title {
+          font-size: 16px;
+        }
+      }
+      
+      .ant-modal-body {
+        padding: 12px 16px;
+      }
+      
+      .ant-modal-footer {
+        padding: 12px 16px;
+        
+        .ant-btn {
+          margin-left: 8px;
+          font-size: 13px;
+        }
+      }
     }
   }
 } 

@@ -1,19 +1,103 @@
+@import '../../styles/breakpoints.scss';
+
 .user-list-container {
   padding: 24px;
+
+  // 移动端适配
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
 
   .table-toolbar {
     display: flex;
     justify-content: space-between;
     margin-bottom: 16px;
 
+    // 移动端垂直布局
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 12px;
+    }
+
     .search-area {
       display: flex;
       align-items: center;
+
+      // 移动端搜索区域优化
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+
+        .ant-space {
+          .ant-space-item {
+            flex: 1;
+            
+            .ant-input,
+            .ant-select {
+              width: 100% !important;
+            }
+          }
+        }
+      }
+
+      // 平板端优化
+      @media (max-width: 992px) and (min-width: 769px) {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
     }
 
     .action-area {
       display: flex;
       gap: 8px;
+
+      // 移动端按钮区域优化
+      @media (max-width: 768px) {
+        justify-content: flex-end;
+      }
+    }
+  }
+
+  // 表格响应式优化
+  .ant-table-wrapper {
+    // 移动端表格横向滚动
+    @media (max-width: 768px) {
+      .ant-table {
+        font-size: 12px;
+        
+        .ant-table-thead > tr > th {
+          padding: 8px 4px;
+          font-size: 12px;
+        }
+        
+        .ant-table-tbody > tr > td {
+          padding: 8px 4px;
+          font-size: 12px;
+        }
+      }
+      
+      // 隐藏次要列
+      .ant-table-column-title {
+        &:nth-child(4), // 审核人列
+        &:nth-child(6), // 参与事件数量列
+        &:nth-child(7)  // 参与活动数量列
+        {
+          display: none;
+        }
+      }
+    }
+
+    // 平板端适配
+    @media (max-width: 992px) and (min-width: 769px) {
+      .ant-table {
+        font-size: 13px;
+        
+        .ant-table-thead > tr > th,
+        .ant-table-tbody > tr > td {
+          padding: 10px 6px;
+        }
+      }
     }
   }
 
@@ -33,5 +117,123 @@
   .ant-tag {
     min-width: 60px;
     text-align: center;
+
+    // 移动端标签适配
+    @media (max-width: 768px) {
+      min-width: 50px;
+      font-size: 11px;
+      padding: 0 4px;
+    }
+  }
+
+  // 移动端卡片式布局（当屏幕太小时的备选方案）
+  .mobile-card-view {
+    display: none;
+
+    @media (max-width: 576px) {
+      display: block;
+      
+      .user-card {
+        background: #fff;
+        border: 1px solid #d9d9d9;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: box-shadow 0.2s;
+
+        &:hover {
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+
+          .user-name {
+            font-weight: 500;
+            font-size: 14px;
+          }
+
+          .user-role {
+            font-size: 12px;
+          }
+        }
+
+        .user-info {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          font-size: 12px;
+          color: #666;
+
+          .info-item {
+            flex: 1;
+            min-width: 45%;
+          }
+        }
+
+        .user-actions {
+          margin-top: 8px;
+          text-align: right;
+
+          .ant-btn {
+            font-size: 12px;
+            padding: 2px 8px;
+            height: auto;
+          }
+        }
+      }
+    }
+  }
+
+  // 隐藏表格在小屏幕上
+  .ant-table-wrapper {
+    @media (max-width: 576px) {
+      display: none;
+    }
+  }
+}
+
+// 弹窗移动端适配
+.ant-modal {
+  @media (max-width: 768px) {
+    max-width: calc(100vw - 32px) !important;
+    margin: 16px auto;
+    
+    .ant-modal-content {
+      .ant-modal-body {
+        padding: 16px;
+        
+        .ant-form-item {
+          margin-bottom: 16px;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 576px) {
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px auto;
+    
+    .ant-modal-content {
+      .ant-modal-header {
+        padding: 12px 16px;
+      }
+      
+      .ant-modal-body {
+        padding: 12px 16px;
+      }
+      
+      .ant-modal-footer {
+        padding: 12px 16px;
+        
+        .ant-btn {
+          margin-left: 8px;
+        }
+      }
+    }
   }
 } 

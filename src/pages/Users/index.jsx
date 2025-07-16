@@ -339,7 +339,7 @@ const UserList = () => {
       <Card>
         <div className="table-toolbar">
           <div className="search-area">
-            <Space size="middle" wrap>
+            <Space size="middle" wrap className="search-controls">
               <Input
                 placeholder="搜索用户名"
                 value={searchParams.username}
@@ -348,6 +348,7 @@ const UserList = () => {
                 onPressEnter={handleSearch}
                 prefix={<SearchOutlined />}
                 allowClear
+                className="search-input"
               />
               <Select
                 placeholder="选择角色"
@@ -355,6 +356,7 @@ const UserList = () => {
                 onChange={handleRoleChange}
                 style={{ width: 120 }}
                 allowClear
+                className="search-select"
               >
                 {roleOptions.map((option) => (
                   <Option key={option.value} value={option.value}>
@@ -368,6 +370,7 @@ const UserList = () => {
                 onChange={handleLocationChange}
                 style={{ width: 120 }}
                 allowClear
+                className="search-select"
               >
                 {locationFilterOptions.map((option) => (
                   <Option key={option.value} value={option.value}>
@@ -375,10 +378,12 @@ const UserList = () => {
                   </Option>
                 ))}
               </Select>
-              <Button type="primary" onClick={handleSearch}>
-                搜索
-              </Button>
-              <Button onClick={handleResetFilters}>重置</Button>
+              <Space className="search-buttons">
+                <Button type="primary" onClick={handleSearch}>
+                  搜索
+                </Button>
+                <Button onClick={handleResetFilters}>重置</Button>
+              </Space>
             </Space>
           </div>
           <div className="action-area">
@@ -405,6 +410,110 @@ const UserList = () => {
             style: { cursor: "pointer" },
           })}
         />
+
+        {/* 移动端卡片视图 */}
+        <div className="mobile-card-view">
+          {data.map((user) => (
+            <div
+              key={user.id}
+              className="user-card"
+              onClick={() => handleUserDetail(user.id)}
+            >
+              <div className="user-header">
+                <span className="user-name">{user.username}</span>
+                <Tag
+                  className="user-role"
+                  color={user.role === "admin" ? "red" : "blue"}
+                >
+                  {user.role === "admin" ? "管理员" : "普通用户"}
+                </Tag>
+              </div>
+              <div className="user-info">
+                <div className="info-item">
+                  <strong>地区：</strong>
+                  {user.location}
+                </div>
+                <div className="info-item">
+                  <strong>审核人：</strong>
+                  {user.reviewer || "未设置"}
+                </div>
+                <div className="info-item">
+                  <strong>创建时间：</strong>
+                  {user.createTime}
+                </div>
+                <div className="info-item">
+                  <strong>参与事件：</strong>
+                  {user.eventCount}
+                </div>
+              </div>
+              <div className="user-actions">
+                <Button
+                  type="link"
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleUserDetail(user.id);
+                  }}
+                >
+                  查看详情
+                </Button>
+                <Button
+                  type="link"
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSetReviewer(user);
+                  }}
+                >
+                  设置审核人
+                </Button>
+              </div>
+            </div>
+          ))}
+
+          {/* 移动端分页 */}
+          {data.length > 0 && (
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: "16px",
+                padding: "16px 0",
+              }}
+            >
+              <Button
+                disabled={pagination.current === 1}
+                onClick={() =>
+                  handleTableChange({
+                    ...pagination,
+                    current: pagination.current - 1,
+                  })
+                }
+                style={{ marginRight: "8px" }}
+              >
+                上一页
+              </Button>
+              <span style={{ margin: "0 16px", fontSize: "14px" }}>
+                {pagination.current} /{" "}
+                {Math.ceil(pagination.total / pagination.pageSize)}
+              </span>
+              <Button
+                disabled={
+                  pagination.current >=
+                  Math.ceil(pagination.total / pagination.pageSize)
+                }
+                onClick={() =>
+                  handleTableChange({
+                    ...pagination,
+                    current: pagination.current + 1,
+                  })
+                }
+              >
+                下一页
+              </Button>
+            </div>
+          )}
+        </div>
       </Card>
 
       {/* 设置审核人弹窗 */}
