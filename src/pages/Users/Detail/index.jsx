@@ -252,7 +252,7 @@ const UserDetail = () => {
               编辑信息
             </Button>
             <Button onClick={() => setResetModalVisible(true)}>重置密码</Button>
-            <Button onClick={handleSetReviewer}>审核人</Button>
+            <Button onClick={handleSetReviewer}>设置审核人</Button>
             <Button onClick={() => navigate("/users")}>返回列表</Button>
           </Space>
         }
@@ -389,7 +389,7 @@ const UserDetail = () => {
 
       {/* 设置审核人弹窗 */}
       <Modal
-        title="审核人"
+        title="设置审核人"
         open={reviewerModalVisible}
         onOk={handleSaveReviewer}
         onCancel={() => setReviewerModalVisible(false)}

@@ -287,7 +287,7 @@ const ActivityDetails = () => {
       width: "20%",
     },
     {
-      title: "Reviewer",
+      title: "审核人",
       dataIndex: "reviewer",
       key: "reviewer",
       width: "15%",
