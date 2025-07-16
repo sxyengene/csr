@@ -55,22 +55,37 @@ pnpm build
 
 ### API 配置
 
-项目配置文件位于 `src/config/api.js`：
+**统一配置中心**: 所有接口都通过 `src/config/api.js` 中的统一配置管理：
 
 ```javascript
 export const API_CONFIG = {
-  BASE_URL: "http://8.133.240.77:8080/api",
+  BASE_URL:
+    process.env.NODE_ENV === "development" ? "http://8.133.240.77:8080" : "/",
   TIMEOUT: 10000,
+  RETRY_COUNT: 3,
+  RETRY_DELAY: 1000,
 };
 ```
 
+**架构优势**：
+
+- ✅ **统一管理**: 所有接口地址从一个配置文件管理
+- ✅ **环境隔离**: 开发和生产环境自动切换
+- ✅ **易于维护**: 修改服务器地址只需要改一个地方
+- ✅ **标准化处理**: 统一的认证、错误处理、重试机制
+
+**请求工具**: 项目使用两个统一的 axios 实例：
+
+- `src/utils/request.js` - 主请求工具（带完整拦截器）
+- `src/services/auth.js` - 认证专用实例（避免循环依赖）
+
 ### 环境变量
 
-可在 `.env` 文件中覆盖配置：
+如需自定义配置，可通过环境变量覆盖：
 
 ```bash
-REACT_APP_API_BASE_URL=http://your-api-server.com/api
-REACT_APP_API_TIMEOUT=10000
+# .env.local
+NODE_ENV=development  # 自动切换API地址
 ```
 
 ## 📁 项目结构
@@ -141,6 +156,7 @@ try {
 ## 📚 相关文档
 
 - [API 接口文档](./API_DOCS.md) - 完整的后端 API 接口说明
+- [API 配置指南](./API_CONFIG_GUIDE.md) - 统一配置管理使用说明 ✨
 - [项目概览](./PROJECT_OVERVIEW.md) - 详细的项目架构和设计说明
 - [开发指南](./docs/) - 开发相关的详细文档
 

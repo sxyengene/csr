@@ -199,6 +199,7 @@ npm start
 ### 开发文档
 
 - **[API_DOCS.md](./API_DOCS.md)** - 完整的 21 个 API 接口文档
+- **[API_CONFIG_GUIDE.md](./API_CONFIG_GUIDE.md)** - API 配置统一管理指南 ✨
 - **[API_STANDARDIZATION_GUIDE.md](./API_STANDARDIZATION_GUIDE.md)** - API 标准化使用指南
 - **[LOGIN_INTEGRATION.md](./LOGIN_INTEGRATION.md)** - 登录功能接入说明
 
@@ -234,33 +235,102 @@ npm start
 
 ## 🔧 开发指南
 
+### API 统一配置架构
+
+**配置中心化**: 项目已实现完全统一的 API 配置管理
+
+```javascript
+// src/config/api.js - 统一配置中心
+export const API_CONFIG = {
+  BASE_URL:
+    process.env.NODE_ENV === "development" ? "http://8.133.240.77:8080" : "/",
+  // ... 其他配置
+};
+
+// 所有服务都通过统一工具发送请求
+import { get, post, put, del } from "../utils/request";
+```
+
+**请求流程**：
+
+1. 所有 service 文件使用 `utils/request.js` 工具
+2. 请求工具使用 `config/api.js` 中的 `BASE_URL`
+3. 自动添加认证头、错误处理、重试机制
+
 ### 新增 API 接口
 
-1. 在 `src/config/api.js` 中添加端点定义
-2. 使用 `src/utils/request.js` 中的工具函数
-3. 参考 `src/services/auth.js` 的实现模式
+1. **添加端点定义**：
+
+```javascript
+// src/config/api.js
+export const API_ENDPOINTS = {
+  NEW_MODULE: {
+    LIST: "/api/new-module",
+    DETAIL: "/api/new-module/{id}",
+  },
+};
+```
+
+2. **创建服务函数**：
+
+```javascript
+// src/services/newModule.js
+import { get, post } from "../utils/request";
+import { API_ENDPOINTS, buildUrl } from "../config/api";
+
+export const getNewModuleList = async (params) => {
+  return get(API_ENDPOINTS.NEW_MODULE.LIST, params);
+};
+```
+
+3. **页面中使用**：
+
+```javascript
+import { getData, showApiError } from "../utils/request";
+import { getNewModuleList } from "../services/newModule";
+
+try {
+  const data = await getData(getNewModuleList({ page: 1 }));
+} catch (error) {
+  showApiError(error);
+}
+```
 
 ### 错误处理
 
+**统一错误处理**：
+
 ```javascript
-import { getData, handleApiError } from "../utils/request";
-import { message } from "antd";
+import { getData, showApiError } from "../utils/request";
 
 try {
   const result = await getData(get("/api/users"));
   // 处理成功响应
 } catch (error) {
-  message.error(handleApiError(error));
+  // 自动显示友好的错误信息
+  showApiError(error, "获取用户列表失败");
 }
 ```
 
 ### 使用配置常量
 
+**动态 URL 构建**：
+
 ```javascript
 import { API_ENDPOINTS, buildUrl } from "../config/api";
 
+// 构建带参数的URL
 const userUrl = buildUrl(API_ENDPOINTS.USERS.DETAIL, { id: 123 });
+// 结果: "/api/users/123"
 ```
+
+### 配置修改指南
+
+**修改服务器地址**：
+
+- 开发环境：修改 `src/config/api.js` 中的开发环境地址
+- 生产环境：无需修改，使用相对路径 `/`
+- 所有接口自动使用新地址，无需逐个修改
 
 ## 📞 技术支持
 

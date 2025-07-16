@@ -9,7 +9,8 @@ import { template } from "lodash";
 
 // API 基础配置
 export const API_CONFIG = {
-  BASE_URL: "/",
+  BASE_URL:
+    process.env.NODE_ENV === "development" ? "http://8.133.240.77:8080" : "/",
   TIMEOUT: 10000,
   RETRY_COUNT: 3,
   RETRY_DELAY: 1000,
