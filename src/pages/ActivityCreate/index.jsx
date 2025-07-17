@@ -197,24 +197,24 @@ const ActivityCreate = () => {
 
           <Form.Item
             name="duration"
-            label="活动时长（分钟）"
+            label="活动时长（小时）"
             rules={[
               { required: false, message: "请输入活动时长" },
               {
                 type: "number",
                 min: 0,
-                max: 10080,
-                message: "请输入0-10080之间的有效数字",
+                max: 168,
+                message: "请输入0-168之间的有效数字",
               },
               {
                 validator: (_, value) => {
                   if (value === null || value === undefined || value === "") {
                     return Promise.resolve();
                   }
-                  if (Number.isInteger(value) && value >= 0 && value <= 10080) {
+                  if (value >= 0 && value <= 168 && Number(value) % 0.5 === 0) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error("活动时长只能输入数字"));
+                  return Promise.reject(new Error("活动时长请输入0.5的倍数"));
                 },
               },
             ]}
@@ -222,10 +222,10 @@ const ActivityCreate = () => {
             <InputNumber
               placeholder="请输入活动时长"
               min={0}
-              max={10080} // 一周的分钟数
+              max={168} // 一周的小时数
+              step={0.5} // 支持0.5小时的精度
               style={{ width: "100%" }}
-              addonAfter="分钟"
-              parser={(value) => value.replace(/\D/g, "")} // 只保留数字
+              addonAfter="小时"
               formatter={(value) => (value ? `${value}` : "")}
             />
           </Form.Item>

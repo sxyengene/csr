@@ -15,7 +15,7 @@ const mapActivityDataToAPI = (activityData) => {
     name: activityData.name,
     eventId: parseInt(activityData.eventId),
     templateId: parseInt(activityData.templateId) || 1, // 直接使用templateId，不再映射templateType
-    duration: parseInt(activityData.duration) || 0, // 直接使用用户输入的duration
+    duration: activityData.duration ? parseInt(activityData.duration) * 60 : 0, // 将小时转换为分钟
     icon: activityData.icon,
     description: activityData.description,
     startTime: activityData.startTime, // 保持原格式，不转换
@@ -32,6 +32,10 @@ const mapActivityDataFromAPI = (activityData) => {
     ...activityData,
     // 直接返回templateId，不再需要反向映射templateType
     templateId: activityData.templateId,
+    // 将分钟转换为小时
+    duration: activityData.duration
+      ? Math.round((activityData.duration / 60) * 100) / 100
+      : 0,
     // visibleRoles保持原样，不转换
   };
 };

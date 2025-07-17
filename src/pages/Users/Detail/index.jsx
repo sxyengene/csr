@@ -189,6 +189,7 @@ const UserDetail = () => {
       title: "参与时长",
       dataIndex: "duration",
       key: "duration",
+      render: (duration) => (duration ? `${duration}分钟` : "-"),
     },
     {
       title: "状态",
@@ -218,6 +219,7 @@ const UserDetail = () => {
       title: "参与时长",
       dataIndex: "duration",
       key: "duration",
+      render: (duration) => (duration ? `${duration}分钟` : "-"),
     },
     {
       title: "操作",
@@ -305,7 +307,7 @@ const UserDetail = () => {
                     </div>
                     <div className="content-item">
                       <strong>时长：</strong>
-                      {event.duration}
+                      {event.duration ? `${event.duration}分钟` : "-"}
                     </div>
                     <div className="content-item">
                       <strong>状态：</strong>
@@ -351,7 +353,7 @@ const UserDetail = () => {
                     </div>
                     <div className="content-item">
                       <strong>参与时长：</strong>
-                      {activity.duration}
+                      {activity.duration ? `${activity.duration}分钟` : "-"}
                     </div>
                   </div>
                   <div className="item-action">
